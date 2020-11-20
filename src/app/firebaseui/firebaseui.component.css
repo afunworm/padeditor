@@ -1,0 +1,42 @@
+@import '~firebaseui/dist/firebaseui.css';
+
+body {
+	background-color: #f9f9f9;
+}
+
+.firebaseui-container {
+	box-shadow: none !important;
+	max-width: 420px;
+}
+
+#firebaseui-auth-container {
+	margin-bottom: 50px;
+}
+
+.firebaseui-title {
+	text-align: center;
+}
+
+.firebaseui-card-actions .firebaseui-form-actions {
+	text-align: center;
+}
+
+/* .firebaseui .mat-form-field--inline {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+}
+
+.firebaseui .mat-form-field--inline .mat-form-field {
+	display: inline-block;
+	width: 100%;
+	vertical-align: middle;
+}
+
+.firebaseui .mat-form-field {
+	margin-right: 11px;
+} */
+
+.firebaseui button[type='submit'] {
+	text-transform: uppercase;
+}

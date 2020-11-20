@@ -1,0 +1,21 @@
+#media-manager-wrapper .mat-tab-body {
+	min-height: 300px !important;
+	padding: 16px !important;
+}
+
+#media-manager-wrapper .mat-tab-labels {
+	justify-content: center;
+}
+
+#media-manager-wrapper .library-item {
+	flex: 1 0 21%;
+	margin: 5px;
+	height: 100px;
+	border: 1px solid #cbd5e0;
+	cursor: pointer;
+}
+
+#media-manager-wrapper .library-item.active {
+	border-color: #2196f3;
+	border-width: 3px;
+}

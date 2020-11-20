@@ -1,0 +1,1040 @@
+<!-- Compiling Box -->
+<div
+	style="
+		height: 100%;
+		width: 100%;
+		background: rgba(0, 0, 0, 0.35);
+		z-index: 11;
+		position: fixed;
+		top: 0px;
+		left: 0px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	"
+	*ngIf="compilingMode"
+>
+	<div
+		class="mat-elevation-z4"
+		style="background: #fff; border-radius: 25px; height: 500px; width: 600px; display: block; padding: 22px"
+	>
+		<h1 class="mat-h1" style="margin-bottom: 0px">Data Compilation</h1>
+
+		<mat-tab-group mat-align-tabs="center">
+			<mat-tab label="New Data Files">
+				<div align="center">
+					<p style="margin-top: 18px; margin-bottom: 11px" *ngIf="cardDataOutput">
+						<a
+							style="color: #3f51b5; cursor: pointer; text-decoration: underline"
+							(click)="download('card')"
+							>Download the new download_card_data</a
+						>
+					</p>
+					<p style="margin-top: 11px; margin-bottom: 300px" *ngIf="skillDataOutput">
+						<a
+							style="color: #3f51b5; cursor: pointer; text-decoration: underline"
+							(click)="download('skill')"
+							>Download the new download_skill_data</a
+						>
+					</p>
+				</div>
+			</mat-tab>
+			<mat-tab label="Processing Log">
+				<div align="center">
+					<textarea readonly>{{ logOutput }}</textarea>
+				</div>
+			</mat-tab>
+		</mat-tab-group>
+
+		<div align="center">
+			<button
+				mat-flat-button
+				color="primary"
+				(click)="
+					compilingMode = false;
+					cardDataOutput = '';
+					skillDataOutput = '';
+					logOutput = '';
+					isCompiling = false
+				"
+			>
+				Done
+			</button>
+		</div>
+	</div>
+</div>
+
+<!-- Import/Export Box -->
+<div
+	style="
+		height: 100%;
+		width: 100%;
+		background: rgba(0, 0, 0, 0.35);
+		z-index: 11;
+		position: fixed;
+		top: 0px;
+		left: 0px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	"
+	*ngIf="changeQueueExportMode"
+>
+	<div
+		class="mat-elevation-z4"
+		style="background: #fff; border-radius: 25px; height: 500px; width: 600px; display: block; padding: 22px"
+	>
+		<h1 class="mat-h1" style="margin-bottom: 0px">Export Change Queue</h1>
+
+		<mat-tab-group mat-align-tabs="center">
+			<mat-tab label="Export Change Queue">
+				<div align="center" style="margin-bottom: 11px">
+					<p style="margin-top: 11px">Save this to re-load the change queue in the future.</p>
+					<textarea readonly style="height: 250px; margin-top: 0px">{{ changeQueueExport }}</textarea>
+					<button
+						mat-flat-button
+						color="accent"
+						[disabled]="isFirestoring"
+						(click)="saveChangeQueueToCloud()"
+					>
+						<mat-icon>cloud_upload</mat-icon>
+						Save to Cloud
+					</button>
+					<!-- <mat-checkbox
+						#hiddenQueueChange
+						(change)="exportChangeQueue(hiddenQueueChange.checked)"
+						style="padding: 16px"
+					>
+						Make these change queue hidden when imported
+					</mat-checkbox> -->
+				</div>
+			</mat-tab>
+			<mat-tab label="Import Change Queue">
+				<div align="center">
+					<p style="margin-top: 11px">Paste your change queue data here to import.</p>
+					<textarea style="height: 250px; margin-top: 0px" [(ngModel)]="changeQueueImport"></textarea>
+					<div align="right">
+						<mat-checkbox [(ngModel)]="overwriteChangeQueueOnImport"
+							>Overwrite Current Change Queue</mat-checkbox
+						>
+						<button mat-flat-button color="accent" style="margin-left: 25px" (click)="importChangeQueue()">
+							Import
+						</button>
+					</div>
+					<br /><br />
+				</div>
+			</mat-tab>
+			<mat-tab label="Your Saved Queues">
+				<div align="center">
+					<mat-nav-list style="margin-top: 11px; text-align: left">
+						<h3 matSubheader *ngIf="ObjectKeys(cloudQueue).length === 0">You have no saved change queue</h3>
+						<a mat-list-item *ngFor="let queueId of ObjectKeys(cloudQueue)">
+							<span matLine>{{ cloudQueue[queueId].description }}</span>
+							<button mat-icon-button (click)="loadChangeQueueFromCloud(queueId)">
+								<mat-icon>cloud_download</mat-icon>
+							</button>
+							<button
+								mat-icon-button
+								(click)="deleteChangeQueueFromCloud(queueId)"
+								[disabled]="isFirestoring"
+							>
+								<mat-icon>delete</mat-icon>
+							</button>
+						</a>
+					</mat-nav-list>
+					<br /><br />
+				</div>
+			</mat-tab>
+		</mat-tab-group>
+
+		<div align="center">
+			<button
+				mat-flat-button
+				color="primary"
+				(click)="changeQueueExportMode = false; changeQueueExport = ''; changeQueueImport = ''"
+			>
+				Done
+			</button>
+		</div>
+	</div>
+</div>
+
+<!-- Awakening Dialog -->
+<div
+	style="
+		height: 100%;
+		width: 100%;
+		background: rgba(0, 0, 0, 0.35);
+		z-index: 11;
+		position: fixed;
+		top: 0px;
+		left: 0px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	"
+	*ngIf="editingAwakeningMode"
+>
+	<div
+		class="mat-elevation-z4"
+		style="background: #fff; border-radius: 25px; height: 400px; width: 600px; display: block; padding: 22px"
+	>
+		<h1 class="mat-h1" style="margin-bottom: 0px">Current Awakenings</h1>
+		<p style="font-style: italic; color: gray; margin-top: 0px">(click to remove)</p>
+
+		<div align="center" *ngIf="!isEditingSA">
+			<span
+				*ngFor="let awakeningId of changeQueue[currentChangingQueueCardId][0].data.awakenings; let i = index"
+				style="margin-right: 3px"
+			>
+				<img
+					class="awakeningIcon"
+					src="/assets/images/awakenings/{{ awakeningId }}.png"
+					(click)="removeAwakening(i)"
+				/>
+			</span>
+		</div>
+
+		<div align="center" *ngIf="isEditingSA">
+			<span
+				*ngFor="
+					let awakeningId of awakeningId;
+					of: changeQueue[currentChangingQueueCardId][0].data.superAwakenings;
+					let i = index
+				"
+				style="margin-right: 3px"
+			>
+				<img
+					class="awakeningIcon"
+					src="/assets/images/awakenings/{{ awakeningId }}.png"
+					(click)="removeAwakening(i)"
+				/>
+			</span>
+		</div>
+
+		<h1 class="mat-h1" style="margin-bottom: 0px">Available Awakenings</h1>
+		<p style="font-style: italic; color: gray; margin-top: 0px">(click to add)</p>
+
+		<div align="center">
+			<span *ngFor="let awakeningId of availableAwakenings" style="margin-right: 3px">
+				<img
+					class="awakeningIcon"
+					src="/assets/images/awakenings/{{ awakeningId }}.png"
+					(click)="addNewAwakening(awakeningId)"
+				/>
+			</span>
+		</div>
+
+		<div align="center">
+			<button mat-flat-button color="primary" (click)="editingAwakeningMode = false">Done</button>
+		</div>
+	</div>
+</div>
+
+<!-- Change Queue Sidebar -->
+<div
+	class="mat-elevation-z4"
+	style="
+		position: fixed;
+		bottom: 0px;
+		right: 16px;
+		width: 350px;
+		height: 500px;
+		z-index: 2;
+		background: #fff;
+		padding: 16px;
+	"
+	cdkDrag
+>
+	<h3 class="mat-display-1" style="font-size: 22px; margin-bottom: 8px">Change Queue</h3>
+	<div style="height: 82%; width: 100%; overflow: hidden; overflow-y: scroll" #queueContainer>
+		<div *ngIf="!changeQueue.hidden">
+			<div
+				*ngFor="let cardId of ObjectKeys(changeQueue)"
+				style="padding: 11px; background: rgba(0, 0, 0, 0.07); border-radius: 6px; margin-bottom: 5px"
+			>
+				<div style="width: 100%; margin-bottom: 11px; display: flex">
+					<div style="position: relative">
+						<img src="{{ changeQueue[cardId][0].icon }}" style="max-width: 88px; margin-right: 11px" />
+						<div style="position: absolute; bottom: -11px; left: -11px; z-index: 2">
+							<button mat-mini-fab color="accent" [matMenuTriggerFor]="menu">
+								<mat-icon>expand_more</mat-icon>
+							</button>
+							<mat-menu #menu="matMenu">
+								<button mat-menu-item (click)="editChangeQueueItem(cardId)">Edit</button>
+								<button mat-menu-item (click)="removeChangeQueueItem(cardId)">Remove</button>
+								<button mat-menu-item (click)="copyAS(cardId)">Copy Active Skills</button>
+								<button mat-menu-item (click)="copyLS(cardId)">Copy Leader Skills</button>
+							</mat-menu>
+						</div>
+					</div>
+
+					<div style="padding-top: 11px">
+						<strong> {{ cardId }}. {{ changeQueue[cardId][0].cardName }}</strong>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- <div *ngIf="ObjectKeys(changeQueue) && changeQueue.hidden">
+			<div
+				style="
+					padding: 11px 11px 5px 11px;
+					background: rgba(0, 0, 0, 0.07);
+					border-radius: 6px;
+					margin-bottom: 5px;
+				"
+			>
+				<strong>{{ ObjectKeys(changeQueue).length }} card(s) modified</strong>
+			</div>
+		</div> -->
+	</div>
+	<button
+		mat-flat-button
+		color="primary"
+		[disabled]="ObjectKeys(changeQueue).length === 0 || isCompiling"
+		(click)="compileData()"
+		style="margin-top: 8px"
+	>
+		{{ isCompiling ? 'Compiling Data...' : 'Compile Data' }}
+	</button>
+	<button mat-flat-button color="primary" (click)="exportChangeQueue()" style="margin-left: 5px; margin-top: 8px">
+		Import/Export Change Queue
+	</button>
+</div>
+
+<!-- Main Page -->
+<div class="page" *ifPageLoaded>
+	<h1 class="mat-h3" style="margin-top: 35px; color: rgba(0, 0, 0, 0.48)">
+		Puzzle & Dragon Card Data Editor v.1.1.8
+	</h1>
+	<div class="container">
+		<!-- LOAD ROW -->
+		<div class="row mat-elevation-z4">
+			<div class="section">
+				<h1 class="mat-display-1">Load Existing Card Data</h1>
+
+				<mat-form-field appearance="outline" color="primary" style="width: 100%">
+					<mat-label>Name</mat-label>
+					<input
+						type="text"
+						placeholder="Monster Name or Monster ID"
+						matInput
+						[formControl]="padNameControl"
+						[matAutocomplete]="auto"
+						[(ngModel)]="selectedName"
+					/>
+					<mat-autocomplete #auto="matAutocomplete">
+						<mat-option *ngFor="let option of nameFilteredOptions | async" [value]="option">
+							{{ option }}
+						</mat-option>
+					</mat-autocomplete>
+				</mat-form-field>
+
+				<button mat-flat-button color="primary" (click)="loadCard()">Edit This Card</button>
+			</div>
+		</div>
+
+		<!-- LOAD ROW -->
+		<div class="row mat-elevation-z4" *ngIf="selectedCardData">
+			<div class="section">
+				<h1 class="mat-display-1">Card Information Edit</h1>
+
+				<div *ngIf="currentCardIconUrl">
+					<img src="{{ currentCardIconUrl }}" style="margin-bottom: 11px" />
+				</div>
+
+				<!-- NAME -->
+				<mat-form-field appearance="outline" color="primary" style="width: 100%">
+					<mat-label>Name</mat-label>
+					<input type="text" matInput [(ngModel)]="selectedCardData[1]" />
+				</mat-form-field>
+
+				<!-- ATTRIBUTES -->
+				<p>
+					#1 Attribute:
+					<mat-radio-group [(ngModel)]="selectedCardData[2]">
+						<mat-radio-button [value]="0"
+							><img src="/assets/images/attributes/fire.png" style="max-height: 48px; margin-right: 35px"
+						/></mat-radio-button>
+						<mat-radio-button [value]="1"
+							><img
+								src="/assets/images/attributes/water.png"
+								style="max-height: 48px; margin-right: 35px"
+						/></mat-radio-button>
+						<mat-radio-button [value]="2"
+							><img src="/assets/images/attributes/wood.png" style="max-height: 48px; margin-right: 35px"
+						/></mat-radio-button>
+						<mat-radio-button [value]="3"
+							><img
+								src="/assets/images/attributes/light.png"
+								style="max-height: 48px; margin-right: 35px"
+						/></mat-radio-button>
+						<mat-radio-button [value]="4"
+							><img src="/assets/images/attributes/dark.png" style="max-height: 48px; margin-right: 35px"
+						/></mat-radio-button>
+						<mat-radio-button [value]="6">None</mat-radio-button>
+					</mat-radio-group>
+				</p>
+				<p>
+					#2 Attribute:
+					<mat-radio-group [(ngModel)]="selectedCardData[3]">
+						<mat-radio-button [value]="0"
+							><img src="/assets/images/attributes/fire.png" style="max-height: 48px; margin-right: 35px"
+						/></mat-radio-button>
+						<mat-radio-button [value]="1"
+							><img
+								src="/assets/images/attributes/water.png"
+								style="max-height: 48px; margin-right: 35px"
+						/></mat-radio-button>
+						<mat-radio-button [value]="2"
+							><img src="/assets/images/attributes/wood.png" style="max-height: 48px; margin-right: 35px"
+						/></mat-radio-button>
+						<mat-radio-button [value]="3"
+							><img
+								src="/assets/images/attributes/light.png"
+								style="max-height: 48px; margin-right: 35px"
+						/></mat-radio-button>
+						<mat-radio-button [value]="4"
+							><img src="/assets/images/attributes/dark.png" style="max-height: 48px; margin-right: 35px"
+						/></mat-radio-button>
+						<mat-radio-button [value]="-1">None</mat-radio-button>
+					</mat-radio-group>
+				</p>
+
+				<!-- Evo Reversible -->
+				<p>
+					Is this card evo-reversible?
+					<mat-radio-group [(ngModel)]="selectedCardData[4]">
+						<mat-radio-button [value]="1">Yes</mat-radio-button>
+						<mat-radio-button [value]="0" style="margin-left: 11px">No</mat-radio-button>
+					</mat-radio-group>
+				</p>
+
+				<!-- Extra slottable + inheritable -->
+				<!-- <p>
+					Is this card inheritable?
+					<mat-radio-group [(ngModel)]="changeQueue[currentChangingQueueCardId][0].data.isInheritable">
+						<mat-radio-button [value]="true">Yes</mat-radio-button>
+						<mat-radio-button [value]="false" style="margin-left: 11px">No</mat-radio-button>
+					</mat-radio-group>
+				</p>
+
+				<p>
+					Is this card extraslottable?
+					<mat-radio-group [(ngModel)]="changeQueue[currentChangingQueueCardId][0].data.isExtraSlottable">
+						<mat-radio-button [value]="true">Yes</mat-radio-button>
+						<mat-radio-button [value]="false" style="margin-left: 11px">No</mat-radio-button>
+					</mat-radio-group>
+				</p> -->
+
+				<!-- MP & RARITY -->
+				<!-- <mat-form-field appearance="outline" color="primary" style="width: 49%; margin-left: 2%; display: none">
+					<mat-label>Monster Points</mat-label>
+					<input
+						type="number"
+						xcelInput
+						matInput
+						[(ngModel)]="changeQueue[currentChangingQueueCardId][0].data.monsterPoints"
+					/>
+				</mat-form-field> -->
+				<mat-form-field appearance="outline" color="primary" style="width: 100%">
+					<mat-label>Rarity</mat-label>
+					<input type="number" xcelInput matInput [(ngModel)]="selectedCardData[7]" />
+				</mat-form-field>
+
+				<!-- HP -->
+				<mat-form-field appearance="outline" color="primary" style="width: 49%">
+					<mat-label>Minimum HP</mat-label>
+					<input type="number" xcelInput matInput [(ngModel)]="selectedCardData[14]" />
+				</mat-form-field>
+				<mat-form-field appearance="outline" color="primary" style="width: 49%; margin-left: 2%">
+					<mat-label>Maximum HP</mat-label>
+					<input type="number" xcelInput matInput [(ngModel)]="selectedCardData[15]" />
+				</mat-form-field>
+
+				<!-- ATK -->
+				<mat-form-field appearance="outline" color="primary" style="width: 49%">
+					<mat-label>Minimum ATK</mat-label>
+					<input type="number" xcelInput matInput [(ngModel)]="selectedCardData[17]" />
+				</mat-form-field>
+				<mat-form-field appearance="outline" color="primary" style="width: 49%; margin-left: 2%">
+					<mat-label>Maximum ATK</mat-label>
+					<input type="number" xcelInput matInput [(ngModel)]="selectedCardData[18]" />
+				</mat-form-field>
+
+				<!-- RCV -->
+				<mat-form-field appearance="outline" color="primary" style="width: 49%">
+					<mat-label>Minimum RCV</mat-label>
+					<input type="number" xcelInput matInput [(ngModel)]="selectedCardData[20]" />
+				</mat-form-field>
+				<mat-form-field appearance="outline" color="primary" style="width: 49%; margin-left: 2%">
+					<mat-label>Maximum RCV</mat-label>
+					<input type="number" xcelInput matInput [(ngModel)]="selectedCardData[21]" />
+				</mat-form-field>
+
+				<!-- AWAKENINGS -->
+				<p
+					*ngIf="changeQueue[currentChangingQueueCardId][0].data.awakenings.length"
+					style="background: rgba(0, 0, 0, 0.9); color: #fff; padding: 15px; border-radius: 18px"
+				>
+					Awakenings
+					<button mat-flat-button color="primary" (click)="editAwakenings()">Edit</button><br /><br />
+					<span *ngFor="let awakeningId of changeQueue[currentChangingQueueCardId][0].data.awakenings">
+						<img [src]="'/assets/images/awakenings/' + awakeningId + '.png'" style="padding-left: 3px" />
+					</span>
+				</p>
+				<p
+					*ngIf="!changeQueue[currentChangingQueueCardId][0].data.awakenings.length"
+					style="background: rgba(0, 0, 0, 0.9); color: #fff; padding: 15px; border-radius: 18px"
+				>
+					No Awakenings <button mat-flat-button color="primary" (click)="editAwakenings()">Edit</button><br />
+				</p>
+				<p
+					*ngIf="changeQueue[currentChangingQueueCardId][0].data.superAwakenings.length > 0"
+					style="background: rgba(0, 0, 0, 0.9); color: #fff; padding: 15px; border-radius: 18px"
+				>
+					Super Awakenings
+					<button mat-flat-button color="primary" (click)="editSuperAwakenings()">Edit</button><br /><br />
+					<span *ngFor="let awakeningId of changeQueue[currentChangingQueueCardId][0].data.superAwakenings">
+						<img [src]="'/assets/images/awakenings/' + awakeningId + '.png'" style="padding-left: 3px" />
+					</span>
+				</p>
+				<p
+					*ngIf="changeQueue[currentChangingQueueCardId][0].data.superAwakenings.length === 0"
+					style="background: rgba(0, 0, 0, 0.9); color: #fff; padding: 15px; border-radius: 18px"
+				>
+					No Super Awakenings
+					<button mat-flat-button color="primary" (click)="editSuperAwakenings()">Edit</button>
+				</p>
+			</div>
+		</div>
+	</div>
+
+	<!-- ACTIVE SKILL EDIT -->
+	<div class="container" *ngIf="selectedCardData">
+		<!-- LOAD ROW -->
+		<div class="row mat-elevation-z4">
+			<div class="section">
+				<h1 class="mat-display-1" style="margin-top: 25px">Card Active Skill Edit</h1>
+
+				<p *ngIf="ObjectKeys(changeQueue[currentChangingQueueCardId][1]).length === 0">
+					<span innerHTML="{{ originalActiveSkillString }}"></span>
+				</p>
+
+				<div *ngIf="ObjectKeys(changeQueue[currentChangingQueueCardId][1]).length > 0">
+					<button mat-flat-button color="accent" (click)="addActiveSkillPart()">
+						<mat-icon>add</mat-icon>Add Skill Part
+					</button>
+					<br /><br />
+
+					<div>
+						<p>Use <code>\n</code> to indicate linebreaks in description.</p>
+						<mat-form-field appearance="outline" color="primary" style="width: 14%; margin-right: 1%">
+							<mat-label>Skill Name</mat-label>
+							<input type="text" matInput [(ngModel)]="changeQueue[currentChangingQueueCardId][1].name" />
+						</mat-form-field>
+						<mat-form-field appearance="outline" color="primary" style="width: 54%; margin-right: 1%">
+							<mat-label>Skill Description</mat-label>
+							<input
+								type="text"
+								matInput
+								[(ngModel)]="changeQueue[currentChangingQueueCardId][1].description"
+							/>
+						</mat-form-field>
+						<mat-form-field appearance="outline" color="primary" style="width: 14%; margin-right: 1%">
+							<mat-label>Max Cooldown Level</mat-label>
+							<input
+								type="number"
+								xcelInput
+								matInput
+								[(ngModel)]="changeQueue[currentChangingQueueCardId][1].maxCDLevel"
+							/>
+						</mat-form-field>
+						<mat-form-field appearance="outline" color="primary" style="width: 15%">
+							<mat-label>Turn at CD Lv1</mat-label>
+							<input
+								type="number"
+								xcelInput
+								matInput
+								[(ngModel)]="changeQueue[currentChangingQueueCardId][1].turnAtCDLv1"
+							/>
+						</mat-form-field>
+					</div>
+
+					<div
+						*ngFor="
+							let part of changeQueue[currentChangingQueueCardId][1].parts;
+							let partSkillIndex = index
+						"
+						style="
+							padding: 25px;
+							border-radius: 10px;
+							border: 1px solid rgba(0, 0, 0, 0.15);
+							margin-bottom: 16px;
+						"
+					>
+						<button
+							mat-button
+							[disabled]="partSkillIndex === 0"
+							(click)="moveActiveSkillPartUp(partSkillIndex)"
+						>
+							Move Up
+						</button>
+						<button
+							mat-button
+							[disabled]="partSkillIndex === changeQueue[currentChangingQueueCardId][1].parts.length - 1"
+							(click)="moveActiveSkillPartDown(partSkillIndex)"
+						>
+							Move Down
+						</button>
+						<button mat-button (click)="deleteActiveSkillPart(partSkillIndex)">Remove</button>
+						<mat-form-field appearance="outline" color="primary" style="width: 100%">
+							<mat-label>Select Skill Part Type</mat-label>
+							<mat-select
+								[(ngModel)]="part.exec"
+								(selectionChange)="updateActiveSkillParams(partSkillIndex)"
+							>
+								<mat-option *ngFor="let skillPart of activeSkillMap" [value]="skillPart.exec">
+									{{ skillPart.description }}
+								</mat-option>
+							</mat-select>
+						</mat-form-field>
+
+						<div *ngIf="part.paramTemplates.length > 0">
+							<span *ngFor="let paramTemplate of part.paramTemplates; let i = index">
+								<span *ngIf="paramTemplate[1] === 'number'">
+									<mat-form-field
+										appearance="outline"
+										color="primary"
+										style="width: 24%; margin-right: 1%"
+									>
+										<mat-label>{{ paramTemplate[0] }}</mat-label>
+										<input type="number" xcelInput matInput [(ngModel)]="part.params[i]" />
+									</mat-form-field>
+								</span>
+								<span *ngIf="paramTemplate[1] === 'boolean'">
+									<mat-form-field
+										appearance="outline"
+										color="primary"
+										style="width: 24%; margin-right: 1%"
+									>
+										<mat-label>{{ paramTemplate[0] }}</mat-label>
+										<mat-select [(ngModel)]="part.params[i]">
+											<mat-option [value]="true">Yes</mat-option>
+											<mat-option [value]="false">No</mat-option>
+										</mat-select>
+									</mat-form-field>
+								</span>
+								<div *ngIf="paramTemplate[1] === 'attribute'">
+									<strong>{{ paramTemplate[0] }}</strong
+									><br />
+									<mat-radio-group [(ngModel)]="part.params[i]">
+										<mat-radio-button
+											*ngFor="let attribute of availableAttributes"
+											[value]="attribute"
+											><img
+												src="/assets/images/attributes/{{ attribute }}.png"
+												style="max-height: 36px; margin-right: 16px"
+										/></mat-radio-button>
+									</mat-radio-group>
+								</div>
+								<div *ngIf="paramTemplate[1] === 'attributeWithNone'">
+									<strong>{{ paramTemplate[0] }}</strong
+									><br />
+									<mat-radio-group [(ngModel)]="part.params[i]">
+										<mat-radio-button
+											*ngFor="let attribute of availableAttributes"
+											[value]="attribute"
+											><img
+												src="/assets/images/attributes/{{ attribute }}.png"
+												style="max-height: 36px; margin-right: 16px"
+										/></mat-radio-button>
+
+										<mat-radio-button value="none"
+											><img
+												src="/assets/images/attributes/none.png"
+												style="max-height: 36px; margin-right: 16px"
+										/></mat-radio-button>
+									</mat-radio-group>
+								</div>
+								<div *ngIf="paramTemplate[1] === 'attributes'">
+									<strong>{{ paramTemplate[0] }}</strong
+									>:
+									<section>
+										<mat-checkbox
+											*ngFor="let attribute of availableAttributes"
+											[(ngModel)]="part.params[i][attribute]"
+										>
+											<img
+												src="/assets/images/attributes/{{ attribute }}.png"
+												style="max-height: 36px; margin-right: 16px"
+											/>
+										</mat-checkbox>
+									</section>
+								</div>
+								<div *ngIf="paramTemplate[1] === 'type'">
+									<strong>{{ paramTemplate[0] }}</strong
+									><br />
+									<mat-radio-group [(ngModel)]="part.params[i]">
+										<mat-radio-button
+											style="margin-right: 6px"
+											*ngFor="let type of availableTypes"
+											[value]="type"
+											>{{ type | titlecase }}</mat-radio-button
+										>
+									</mat-radio-group>
+								</div>
+								<div *ngIf="paramTemplate[1] === 'types'">
+									<strong>{{ paramTemplate[0] }}</strong
+									>:
+									<section>
+										<mat-checkbox
+											style="margin-right: 6px"
+											*ngFor="let type of availableTypes"
+											[(ngModel)]="part.params[i][type]"
+										>
+											{{ type | titlecase }}
+										</mat-checkbox>
+									</section>
+								</div>
+								<div *ngIf="paramTemplate[1] === 'boardPosition'">
+									<strong>Orb Positions</strong> (leave blank to not use)
+									<table class="mat-elevation-z3">
+										<tr *ngFor="let row of [0, 1, 2, 3, 4]" style="height: 24px">
+											<td
+												*ngFor="let column of [0, 1, 2, 3, 4, 5]"
+												style="height: 24px; width: 24px"
+											>
+												<mat-checkbox
+													[(ngModel)]="part.params[i][row + '_' + column]"
+												></mat-checkbox>
+											</td>
+										</tr>
+									</table>
+								</div>
+								<div *ngIf="paramTemplate[1] === 'rowPosition'">
+									<strong>Row</strong> (1 row only, leave blank to not use)
+									<table class="mat-elevation-z3">
+										<tr *ngFor="let row of [0, 1, 2, 3, 4]" style="height: 24px">
+											<td
+												*ngFor="let column of [0, 1, 2, 3, 4, 5]"
+												style="height: 24px; width: 24px"
+											>
+												<mat-checkbox
+													[(ngModel)]="part.params[i][row + '_' + column]"
+													[disabled]="
+														!['0_0', '1_0', '2_0', '3_0', '4_0'].includes(
+															row + '_' + column
+														)
+													"
+												></mat-checkbox>
+											</td>
+										</tr>
+									</table>
+								</div>
+								<div *ngIf="paramTemplate[1] === 'columnPosition'">
+									<strong>Column</strong> (1 column only, leave blank to not use)
+									<table class="mat-elevation-z3">
+										<tr *ngFor="let row of [0, 1, 2, 3, 4]" style="height: 24px">
+											<td>
+												<mat-checkbox
+													*ngFor="let column of [0, 1, 2, 3, 4, 5]"
+													style="height: 24px; width: 24px"
+													[(ngModel)]="part.params[i][row + '_' + column]"
+													[disabled]="
+														!['0_0', '0_1', '0_2', '0_3', '0_4', '0_5'].includes(
+															row + '_' + column
+														)
+													"
+												></mat-checkbox>
+											</td>
+										</tr>
+									</table>
+								</div>
+							</span>
+						</div>
+					</div>
+
+					<button mat-flat-button color="accent" (click)="addActiveSkillPart()">
+						<mat-icon>add</mat-icon>Add Skill Part
+					</button>
+				</div>
+
+				<br />
+				<button
+					mat-flat-button
+					color="primary"
+					(click)="confirmEditActiveSkills()"
+					[disabled]="ObjectKeys(changeQueue[currentChangingQueueCardId][1]).length > 0"
+				>
+					Edit Active Skill
+				</button>
+				&nbsp;&nbsp;&nbsp;
+				<button
+					mat-flat-button
+					color="primary"
+					(click)="resetActiveSkills()"
+					[disabled]="ObjectKeys(changeQueue[currentChangingQueueCardId][1]).length === 0"
+				>
+					Reset Skill to Original
+				</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- LEADER SKILL EDIT -->
+	<div class="container" *ngIf="selectedCardData">
+		<!-- LOAD ROW -->
+		<div class="row mat-elevation-z4">
+			<div class="section">
+				<h1 class="mat-display-1" style="margin-top: 25px">Card Leader Skill Edit</h1>
+
+				<p *ngIf="ObjectKeys(changeQueue[currentChangingQueueCardId][2]).length === 0">
+					<span innerHTML="{{ originalLeaderSkillString }}"></span>
+				</p>
+
+				<div *ngIf="ObjectKeys(changeQueue[currentChangingQueueCardId][2]).length > 0">
+					<button mat-flat-button color="accent" (click)="addLeaderSkillPart()">
+						<mat-icon>add</mat-icon>Add Skill Part
+					</button>
+					<br /><br />
+
+					<div>
+						<p>Use <code>\n</code> to indicate linebreaks in description.</p>
+						<mat-form-field appearance="outline" color="primary" style="width: 14%; margin-right: 1%">
+							<mat-label>Skill Name</mat-label>
+							<input type="text" matInput [(ngModel)]="changeQueue[currentChangingQueueCardId][2].name" />
+						</mat-form-field>
+						<mat-form-field appearance="outline" color="primary" style="width: 54%; margin-right: 1%">
+							<mat-label>Skill Description</mat-label>
+							<input
+								type="text"
+								matInput
+								[(ngModel)]="changeQueue[currentChangingQueueCardId][2].description"
+							/>
+						</mat-form-field>
+					</div>
+
+					<div
+						*ngFor="
+							let part of changeQueue[currentChangingQueueCardId][2].parts;
+							let partSkillIndex = index
+						"
+						style="
+							padding: 25px;
+							border-radius: 10px;
+							border: 1px solid rgba(0, 0, 0, 0.15);
+							margin-bottom: 16px;
+						"
+					>
+						<button
+							mat-button
+							[disabled]="partSkillIndex === 0"
+							(click)="moveLeaderSkillPartUp(partSkillIndex)"
+						>
+							Move Up
+						</button>
+						<button
+							mat-button
+							[disabled]="partSkillIndex === changeQueue[currentChangingQueueCardId][2].parts.length - 1"
+							(click)="moveLeaderSkillPartDown(partSkillIndex)"
+						>
+							Move Down
+						</button>
+						<button mat-button (click)="deleteLeaderSkillPart(partSkillIndex)">Remove</button>
+						<mat-form-field appearance="outline" color="primary" style="width: 100%">
+							<mat-label>Select Skill Part Type</mat-label>
+							<mat-select
+								[(ngModel)]="part.exec"
+								(selectionChange)="updateLeaderSkillParams(partSkillIndex)"
+							>
+								<mat-option *ngFor="let skillPart of leaderSkillMap" [value]="skillPart.exec">
+									{{ skillPart.description }}
+								</mat-option>
+							</mat-select>
+						</mat-form-field>
+
+						<div *ngIf="part.paramTemplates.length > 0">
+							<span *ngFor="let paramTemplate of part.paramTemplates; let i = index">
+								<span *ngIf="paramTemplate[1] === 'number'">
+									<mat-form-field
+										appearance="outline"
+										color="primary"
+										style="width: 24%; margin-right: 1%"
+									>
+										<mat-label>{{ paramTemplate[0] }}</mat-label>
+										<input type="number" xcelInput matInput [(ngModel)]="part.params[i]" />
+									</mat-form-field>
+								</span>
+								<span *ngIf="paramTemplate[1] === 'boolean'">
+									<mat-form-field
+										appearance="outline"
+										color="primary"
+										style="width: 24%; margin-right: 1%"
+									>
+										<mat-label>{{ paramTemplate[0] }}</mat-label>
+										<mat-select [(ngModel)]="part.params[i]">
+											<mat-option [value]="true">Yes</mat-option>
+											<mat-option [value]="false">No</mat-option>
+										</mat-select>
+									</mat-form-field>
+								</span>
+								<div *ngIf="paramTemplate[1] === 'attribute'">
+									<strong>{{ paramTemplate[0] }}</strong
+									><br />
+									<mat-radio-group [(ngModel)]="part.params[i]">
+										<mat-radio-button
+											*ngFor="let attribute of availableAttributes"
+											[value]="attribute"
+											><img
+												src="/assets/images/attributes/{{ attribute }}.png"
+												style="max-height: 36px; margin-right: 16px"
+										/></mat-radio-button>
+									</mat-radio-group>
+								</div>
+								<div *ngIf="paramTemplate[1] === 'attributeWithNone'">
+									<strong>{{ paramTemplate[0] }}</strong
+									><br />
+									<mat-radio-group [(ngModel)]="part.params[i]">
+										<mat-radio-button
+											*ngFor="let attribute of availableAttributes"
+											[value]="attribute"
+											><img
+												src="/assets/images/attributes/{{ attribute }}.png"
+												style="max-height: 36px; margin-right: 16px"
+										/></mat-radio-button>
+
+										<mat-radio-button value="none"
+											><img
+												src="/assets/images/attributes/none.png"
+												style="max-height: 36px; margin-right: 16px"
+										/></mat-radio-button>
+									</mat-radio-group>
+								</div>
+								<div *ngIf="paramTemplate[1] === 'attributes'">
+									<strong>{{ paramTemplate[0] }}</strong
+									>:
+									<section>
+										<mat-checkbox
+											*ngFor="let attribute of availableAttributes"
+											[(ngModel)]="part.params[i][attribute]"
+										>
+											<img
+												src="/assets/images/attributes/{{ attribute }}.png"
+												style="max-height: 36px; margin-right: 16px"
+											/>
+										</mat-checkbox>
+									</section>
+								</div>
+								<div *ngIf="paramTemplate[1] === 'type'">
+									<strong>{{ paramTemplate[0] }}</strong
+									><br />
+									<mat-radio-group [(ngModel)]="part.params[i]">
+										<mat-radio-button
+											style="margin-right: 6px"
+											*ngFor="let type of availableTypes"
+											[value]="type"
+											>{{ type | titlecase }}</mat-radio-button
+										>
+									</mat-radio-group>
+								</div>
+								<div *ngIf="paramTemplate[1] === 'types'">
+									<strong>{{ paramTemplate[0] }}</strong
+									>:
+									<section>
+										<mat-checkbox
+											style="margin-right: 6px"
+											*ngFor="let type of availableTypes"
+											[(ngModel)]="part.params[i][type]"
+										>
+											{{ type | titlecase }}
+										</mat-checkbox>
+									</section>
+								</div>
+								<div *ngIf="paramTemplate[1] === 'boardPosition'">
+									<strong>Orb Positions</strong> (leave blank to not use)
+									<table class="mat-elevation-z3">
+										<tr *ngFor="let row of [0, 1, 2, 3, 4]" style="height: 24px">
+											<td
+												*ngFor="let column of [0, 1, 2, 3, 4, 5]"
+												style="height: 24px; width: 24px"
+											>
+												<mat-checkbox
+													[(ngModel)]="part.params[i][row + '_' + column]"
+												></mat-checkbox>
+											</td>
+										</tr>
+									</table>
+								</div>
+								<div *ngIf="paramTemplate[1] === 'rowPosition'">
+									<strong>Row</strong> (1 row only, leave blank to not use)
+									<table class="mat-elevation-z3">
+										<tr *ngFor="let row of [0, 1, 2, 3, 4]" style="height: 24px">
+											<td
+												*ngFor="let column of [0, 1, 2, 3, 4, 5]"
+												style="height: 24px; width: 24px"
+											>
+												<mat-checkbox
+													[(ngModel)]="part.params[i][row + '_' + column]"
+													[disabled]="
+														!['0_0', '1_0', '2_0', '3_0', '4_0'].includes(
+															row + '_' + column
+														)
+													"
+												></mat-checkbox>
+											</td>
+										</tr>
+									</table>
+								</div>
+								<div *ngIf="paramTemplate[1] === 'columnPosition'">
+									<strong>Column</strong> (1 column only, leave blank to not use)
+									<table class="mat-elevation-z3">
+										<tr *ngFor="let row of [0, 1, 2, 3, 4]" style="height: 24px">
+											<td
+												*ngFor="let column of [0, 1, 2, 3, 4, 5]"
+												style="height: 24px; width: 24px"
+											>
+												<mat-checkbox
+													[(ngModel)]="part.params[i][row + '_' + column]"
+													[disabled]="
+														!['0_0', '0_1', '0_2', '0_3', '0_4', '0_5'].includes(
+															row + '_' + column
+														)
+													"
+												></mat-checkbox>
+											</td>
+										</tr>
+									</table>
+								</div>
+							</span>
+						</div>
+					</div>
+
+					<button mat-flat-button color="accent" (click)="addLeaderSkillPart()">
+						<mat-icon>add</mat-icon>Add Skill Part
+					</button>
+				</div>
+
+				<br />
+				<button
+					mat-flat-button
+					color="primary"
+					(click)="confirmEditLeaderSkills()"
+					[disabled]="ObjectKeys(changeQueue[currentChangingQueueCardId][2]).length > 0"
+				>
+					Edit Leader Skill
+				</button>
+				&nbsp;&nbsp;&nbsp;
+				<button
+					mat-flat-button
+					color="primary"
+					(click)="resetLeaderSkills()"
+					[disabled]="ObjectKeys(changeQueue[currentChangingQueueCardId][2]).length === 0"
+				>
+					Reset Skill to Original
+				</button>
+			</div>
+		</div>
+	</div>
+</div>

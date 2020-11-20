@@ -1,0 +1,18 @@
+<h2 matDialogTitle>{{ configs?.title }}</h2>
+<mat-dialog-content *ngIf="configs?.message">
+	<div [innerHTML]="configs?.message"></div>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+	<!-- Default buttons for confirmation -->
+	<button mat-button [mat-dialog-close]="true" *ngIf="configs.type === 'confirm'">Yes</button>
+	<button mat-button [mat-dialog-close]="false" *ngIf="configs.type === 'confirm'">No</button>
+
+	<button
+		*ngFor="let button of configs.buttons"
+		mat-button
+		[color]="button.color"
+		(click)="runCallBack(button.callback)"
+	>
+		{{ button.text }}
+	</button>
+</mat-dialog-actions>
