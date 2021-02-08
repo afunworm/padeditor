@@ -306,7 +306,7 @@
 <!-- Main Page -->
 <div class="page" *ifPageLoaded>
 	<h1 class="mat-h3" style="margin-top: 35px; color: rgba(0, 0, 0, 0.48)">
-		Puzzle & Dragon Card Data Editor v.1.1.8
+		Puzzle & Dragon Card Data Editor v.1.1.19
 	</h1>
 	<div class="container">
 		<!-- LOAD ROW -->
@@ -679,24 +679,32 @@
 									<mat-radio-group [(ngModel)]="part.params[i]">
 										<mat-radio-button
 											style="margin-right: 6px"
-											*ngFor="let type of availableTypes"
-											[value]="type"
-											>{{ type | titlecase }}</mat-radio-button
-										>
+											*ngFor="let typeId of availableTypeIds"
+											[value]="typeId"
+											><img
+												src="/assets/images/types/{{ typeId }}.png"
+												style="height: 32px; width: 32px; margin-right: 16px"
+										/></mat-radio-button>
 									</mat-radio-group>
 								</div>
-								<div *ngIf="paramTemplate[1] === 'types'">
+								<div *ngIf="paramTemplate[1] === 'typeWithNone'">
 									<strong>{{ paramTemplate[0] }}</strong
-									>:
-									<section>
-										<mat-checkbox
+									><br />
+									<mat-radio-group [(ngModel)]="part.params[i]">
+										<mat-radio-button style="margin-right: 6px" [value]="-1"
+											><img
+												src="/assets/images/types/-1.png"
+												style="height: 32px; width: 32px; margin-right: 16px"
+										/></mat-radio-button>
+										<mat-radio-button
 											style="margin-right: 6px"
-											*ngFor="let type of availableTypes"
-											[(ngModel)]="part.params[i][type]"
-										>
-											{{ type | titlecase }}
-										</mat-checkbox>
-									</section>
+											*ngFor="let typeId of availableTypeIds"
+											[value]="typeId"
+											><img
+												src="/assets/images/types/{{ typeId }}.png"
+												style="height: 32px; width: 32px; margin-right: 16px"
+										/></mat-radio-button>
+									</mat-radio-group>
 								</div>
 								<div *ngIf="paramTemplate[1] === 'boardPosition'">
 									<strong>Orb Positions</strong> (leave blank to not use)
@@ -751,6 +759,22 @@
 											</td>
 										</tr>
 									</table>
+								</div>
+								<div *ngIf="paramTemplate[1] === 'awakening'">
+									<strong>{{ paramTemplate[0] }}</strong
+									>:
+									<section>
+										<mat-radio-group [(ngModel)]="part.params[i]">
+											<mat-radio-button
+												[value]="awakening"
+												*ngFor="let awakening of availableAwakenings"
+												><img
+													src="/assets/images/awakenings/{{ awakening }}.png"
+													style="height: 32px; width: 32px; margin-right: 35px"
+											/></mat-radio-button>
+										</mat-radio-group>
+										<br /><br />
+									</section>
 								</div>
 							</span>
 						</div>

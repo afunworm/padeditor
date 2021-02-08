@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-const cardData = require('../../../assets/raw/download_card_data.json');
-const skillData = require('../../../assets/raw/download_skill_data.json');
+const cardData = require('../../../assets/raw/download_card_data_020721.json');
+const skillData = require('../../../assets/raw/download_skill_data_020721.json');
 import { CardModifier } from '../cardModifier/cardModifier.service';
-import { Attribute, Attributes, Type, Types } from '../../interfaces/card.interfaces';
+import { Attribute } from '../../interfaces/card.interfaces';
 import { ActiveSkillService } from '../activeSkills/activeSkills.service';
 import { LeaderSkillService } from '../leaderSkills/leaderSkills.service';
 import { sortBy } from 'lodash';
@@ -24,7 +24,7 @@ export class DataService {
 	}
 
 	getCardMaxNo() {
-		return 6623;
+		return 6876;
 	}
 
 	get key() {
@@ -197,6 +197,11 @@ export class DataService {
 			70,
 			71,
 			72,
+			73,
+			74,
+			75,
+			76,
+			77,
 		];
 	}
 
@@ -219,6 +224,10 @@ export class DataService {
 			'balanced',
 			'evo',
 		];
+	}
+
+	getAvailableTypeIds() {
+		return [0, 1, 2, 3, 4, 5, 6, 7, 8, 12, 14, 15];
 	}
 
 	processAttributes(attributeJSON) {

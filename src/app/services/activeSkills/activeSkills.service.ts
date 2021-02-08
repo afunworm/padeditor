@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Type } from '@angular/core';
 import { Attribute, Attributes } from '../../interfaces/card.interfaces';
 
 @Injectable({ providedIn: 'root' })
@@ -300,6 +300,7 @@ export class ActiveSkillService {
 	voidAbsorption(
 		voidDamageAbsorption: boolean = true,
 		voidAttributeAbsorption: boolean = true,
+		voidComboAbsorption: boolean = true,
 		numberOfTurns: number
 	) {
 		let skillIndex = this.skillData.skill.length;
@@ -312,7 +313,7 @@ export class ActiveSkillService {
 			'',
 			numberOfTurns,
 			Number(voidDamageAbsorption),
-			0,
+			Number(voidComboAbsorption),
 			Number(voidAttributeAbsorption),
 		];
 		this.resetNameAndDescription();
@@ -718,9 +719,268 @@ export class ActiveSkillService {
 		return skillIndex;
 	}
 
+	immediateTrueDamageToOneEnemy(damage: number) {
+		let skillIndex = this.skillData.skill.length;
+		this.skillData.skill[skillIndex] = [this.skillName, this.skillDescription, 55, 6, 10, '', damage];
+		this.resetNameAndDescription();
+		this.skill.push(skillIndex);
+		return skillIndex;
+	}
+
 	immediateTrueDamageToAllEnemies(damage: number) {
 		let skillIndex = this.skillData.skill.length;
 		this.skillData.skill[skillIndex] = [this.skillName, this.skillDescription, 56, 6, 10, '', damage];
+		this.resetNameAndDescription();
+		this.skill.push(skillIndex);
+		return skillIndex;
+	}
+
+	selfSkillBind(numberOfTurns: number) {
+		let skillIndex = this.skillData.skill.length;
+		this.skillData.skill[skillIndex] = [this.skillName, this.skillDescription, 214, 0, 0, '', numberOfTurns];
+		this.resetNameAndDescription();
+		this.skill.push(skillIndex);
+		return skillIndex;
+	}
+
+	lockSkyfall(attributes: Attributes, numberOfTurns: number) {
+		let skillIndex = this.skillData.skill.length;
+		this.skillData.skill[skillIndex] = [
+			this.skillName,
+			this.skillDescription,
+			205,
+			0,
+			0,
+			'',
+			this.convertAttributeArrayToBinary(attributes),
+			numberOfTurns,
+		];
+		this.resetNameAndDescription();
+		this.skill.push(skillIndex);
+		return skillIndex;
+	}
+
+	healImmediately(amountOfHP: number) {
+		let skillIndex = this.skillData.skill.length;
+		this.skillData.skill[skillIndex] = [this.skillName, this.skillDescription, 8, 0, 0, '', amountOfHP];
+		this.resetNameAndDescription();
+		this.skill.push(skillIndex);
+		return skillIndex;
+	}
+
+	massAttack(numberOfTurns: number) {
+		let skillIndex = this.skillData.skill.length;
+		this.skillData.skill[skillIndex] = [this.skillName, this.skillDescription, 51, 0, 0, '', numberOfTurns];
+		this.resetNameAndDescription();
+		this.skill.push(skillIndex);
+		return skillIndex;
+	}
+
+	voidEnemiesDefense(numberOfTurns: number, percent: number) {
+		let skillIndex = this.skillData.skill.length;
+		this.skillData.skill[skillIndex] = [
+			this.skillName,
+			this.skillDescription,
+			19,
+			0,
+			0,
+			'',
+			numberOfTurns,
+			percent,
+		];
+		this.resetNameAndDescription();
+		this.skill.push(skillIndex);
+		return skillIndex;
+	}
+
+	doubleOrbChanger(
+		FromAttribute1: Attribute,
+		ToAttribute1: Attribute,
+		FromAttribute2: Attribute,
+		ToAttribute2: Attribute
+	) {
+		let skillIndex = this.skillData.skill.length;
+		this.skillData.skill[skillIndex] = [
+			this.skillName,
+			this.skillDescription,
+			20,
+			0,
+			0,
+			'',
+			this.convertAttributeToInteger(FromAttribute1),
+			this.convertAttributeToInteger(ToAttribute1),
+			this.convertAttributeToInteger(FromAttribute2),
+			this.convertAttributeToInteger(ToAttribute2),
+		];
+		this.resetNameAndDescription();
+		this.skill.push(skillIndex);
+		return skillIndex;
+	}
+
+	singleOrbChanger(FromAttribute: Attribute, ToAttribute: Attribute) {
+		let skillIndex = this.skillData.skill.length;
+		this.skillData.skill[skillIndex] = [
+			this.skillName,
+			this.skillDescription,
+			9,
+			0,
+			0,
+			'',
+			this.convertAttributeToInteger(FromAttribute),
+			this.convertAttributeToInteger(ToAttribute),
+		];
+		this.resetNameAndDescription();
+		this.skill.push(skillIndex);
+		return skillIndex;
+	}
+
+	switchPlacesWithLeader() {
+		let skillIndex = this.skillData.skill.length;
+		this.skillData.skill[skillIndex] = [this.skillName, this.skillDescription, 93, 6, 10, ''];
+		this.resetNameAndDescription();
+		this.skill.push(skillIndex);
+		return skillIndex;
+	}
+
+	increaseAttackPerAwakeningWithOneAwakeningOnly(
+		awakeningId: number,
+		numberOfTurns: number,
+		incrementPerAwakening: number
+	) {
+		let skillIndex = this.skillData.skill.length;
+		this.skillData.skill[skillIndex] = [
+			this.skillName,
+			this.skillDescription,
+			168,
+			0,
+			0,
+			'',
+			numberOfTurns,
+			awakeningId,
+			0,
+			0,
+			0,
+			0,
+			0,
+			incrementPerAwakening,
+		];
+		this.resetNameAndDescription();
+		this.skill.push(skillIndex);
+		return skillIndex;
+	}
+
+	increaseAttackPerAwakening(
+		awakeningId1: number,
+		awakeningId2: number,
+		awakeningId3: number,
+		numberOfTurns: number,
+		incrementPerAwakening: number
+	) {
+		let skillIndex = this.skillData.skill.length;
+		this.skillData.skill[skillIndex] = [
+			this.skillName,
+			this.skillDescription,
+			156,
+			0,
+			0,
+			'',
+			numberOfTurns,
+			awakeningId1,
+			awakeningId2,
+			awakeningId3,
+			2,
+			100 + incrementPerAwakening,
+		];
+		this.resetNameAndDescription();
+		this.skill.push(skillIndex);
+		return skillIndex;
+	}
+
+	reduceDamagePerAwakening(
+		awakeningId1: number,
+		awakeningId2: number,
+		awakeningId3: number,
+		numberOfTurns: number,
+		percentReductionPerAwakening: number
+	) {
+		let skillIndex = this.skillData.skill.length;
+		this.skillData.skill[skillIndex] = [
+			this.skillName,
+			this.skillDescription,
+			156,
+			0,
+			0,
+			'',
+			numberOfTurns,
+			awakeningId1,
+			awakeningId2,
+			awakeningId3,
+			3,
+			percentReductionPerAwakening,
+		];
+		this.resetNameAndDescription();
+		this.skill.push(skillIndex);
+		return skillIndex;
+	}
+
+	immediateHealPerAwakening(
+		awakeningId1: number,
+		awakeningId2: number,
+		awakeningId3: number,
+		RCVMultiplierForHealing: number
+	) {
+		let skillIndex = this.skillData.skill.length;
+		this.skillData.skill[skillIndex] = [
+			this.skillName,
+			this.skillDescription,
+			156,
+			0,
+			0,
+			'',
+			0,
+			awakeningId1,
+			awakeningId2,
+			awakeningId3,
+			1,
+			RCVMultiplierForHealing * 100,
+		];
+		this.resetNameAndDescription();
+		this.skill.push(skillIndex);
+		return skillIndex;
+	}
+
+	increaseAttackForOneType(type: number, numberOfTurns: number, ATKMultiplier: number) {
+		let skillIndex = this.skillData.skill.length;
+		this.skillData.skill[skillIndex] = [
+			this.skillName,
+			this.skillDescription,
+			88,
+			0,
+			0,
+			'',
+			numberOfTurns,
+			Number(type), //Type can be -1 string
+			ATKMultiplier * 100,
+		];
+		this.resetNameAndDescription();
+		this.skill.push(skillIndex);
+		return skillIndex;
+	}
+
+	increaseAttackForTwoTypes(type1: number, type2: number, numberOfTurns: number, ATKMultiplier: number) {
+		let skillIndex = this.skillData.skill.length;
+		this.skillData.skill[skillIndex] = [
+			this.skillName,
+			this.skillDescription,
+			92,
+			0,
+			0,
+			'',
+			numberOfTurns,
+			Number(type1), //Type can be -1 string
+			Number(type2), //Type can be -1 string
+			ATKMultiplier * 100,
+		];
 		this.resetNameAndDescription();
 		this.skill.push(skillIndex);
 		return skillIndex;
@@ -730,16 +990,16 @@ export class ActiveSkillService {
 		this._skillMap.push({
 			exec: 'transform',
 			description: 'Transform into another card',
-			params: [['ID of Card to Transform Into', 'number']],
+			params: [['ID of Card to Transform Into', 'number', 6666]],
 		});
 
 		this._skillMap.push({
 			exec: 'increaseSkyfall',
 			description: 'Increase the skyfall of certain attributes for a number of turns',
 			params: [
-				['Attributes', 'attributes'],
-				['Skyfall Increase Percent', 'number'],
-				['Number of Turns', 'number'],
+				['Attributes', 'attributes', {}],
+				['Skyfall Increase Percent', 'number', 15],
+				['Number of Turns', 'number', 1],
 			],
 		});
 
@@ -753,8 +1013,8 @@ export class ActiveSkillService {
 			exec: 'addCombos',
 			description: 'Add combos for a number of turns',
 			params: [
-				['Number of Combo +', 'number'],
-				['Number of Turns', 'number'],
+				['Number of Combo +', 'number', 1],
+				['Number of Turns', 'number', 1],
 			],
 		});
 
@@ -762,8 +1022,8 @@ export class ActiveSkillService {
 			exec: 'increaseRCV',
 			description: 'Increase RCV for a number of turns',
 			params: [
-				['RCV Multiplier', 'number'],
-				['Number of Turns', 'number'],
+				['RCV Multiplier', 'number', 2],
+				['Number of Turns', 'number', 1],
 			],
 		});
 
@@ -771,25 +1031,25 @@ export class ActiveSkillService {
 			exec: 'increaseAttributeAttack',
 			description: 'Increase the ATK of an attribute for a number of turns',
 			params: [
-				['Attribute', 'attribute'],
-				['ATK Multiplier', 'number'],
-				['Number of Turns', 'number'],
+				['Attribute', 'attribute', 'fire'],
+				['ATK Multiplier', 'number', 2],
+				['Number of Turns', 'number', 1],
 			],
 		});
 
 		this._skillMap.push({
 			exec: 'recoverUnmatchable',
 			description: 'Recover unmatchable status for a number of turns',
-			params: [['Number of Turns', 'number']],
+			params: [['Number of Turns', 'number', 99]],
 		});
 
 		this._skillMap.push({
 			exec: 'recoverBindsAndHP',
 			description: 'Recover bind, awaken bind and HP',
 			params: [
-				['Bind Clear Number of Turns', 'number'],
-				['Awoken Bind Clear Number of Turns', 'number'],
-				['HP Recovery in Percent', 'number'],
+				['Bind Clear Number of Turns', 'number', 99],
+				['Awoken Bind Clear Number of Turns', 'number', 99],
+				['HP Recovery in Percent', 'number', 100],
 			],
 		});
 
@@ -797,9 +1057,9 @@ export class ActiveSkillService {
 			exec: 'increaseTime',
 			description: 'Extend time to move Orbs',
 			params: [
-				['Increase By', 'number'],
-				['Is This Increment Multiplicative?', 'boolean'],
-				['Number of Turns', 'number'],
+				['Increase By', 'number', 5],
+				['Is This Increment Multiplicative?', 'boolean', false],
+				['Number of Turns', 'number', 1],
 			],
 		});
 
@@ -807,61 +1067,62 @@ export class ActiveSkillService {
 			exec: 'haste',
 			description: 'Haste',
 			params: [
-				['Minimum Number of Turns', 'number'],
-				['Maximum Number of Turns', 'number'],
+				['Minimum Number of Turns', 'number', 1],
+				['Maximum Number of Turns', 'number', 1],
 			],
 		});
 
 		this._skillMap.push({
 			exec: 'voidAbsorption',
-			description: 'Void Attribute/Damage absorption for a number of turns',
+			description: 'Void Attribute/Damage/Combo absorption for a number of turns',
 			params: [
-				['Void Damage Absorption?', 'boolean'],
-				['Void Attribute Absorption', 'boolean'],
-				['Number of Turns', 'number'],
+				['Void Damage Absorption?', 'boolean', true],
+				['Void Attribute Absorption', 'boolean', true],
+				['Void Combo Absorption', 'boolean', true],
+				['Number of Turns (max 99)', 'number', 1],
 			],
 		});
 
 		this._skillMap.push({
 			exec: 'voidVoid',
 			description: 'Void Damage Void for a number of turns',
-			params: [['Number of Turns', 'number']],
+			params: [['Number of Turns (max 99)', 'number', 1]],
 		});
 
 		this._skillMap.push({
 			exec: 'delay',
 			description: 'Delay all enemies for a number of turns',
-			params: [['Number of Turns', 'number']],
+			params: [['Number of Turns', 'number', 5]],
 		});
 
 		this._skillMap.push({
 			exec: 'gravity',
 			description: 'Gravity all enemies',
 			params: [
-				['Gravity Percent', 'number'],
-				['Is this True Gravity?', 'boolean'],
+				['Gravity Percent', 'number', 25],
+				['Is this True Gravity?', 'boolean', false],
 			],
 		});
 
 		this._skillMap.push({
 			exec: 'enhanceOrbs',
 			description: 'Enhanced selected attributes',
-			params: [['Attributes', 'attributes']],
+			params: [['Attributes', 'attributes', {}]],
 		});
 
 		this._skillMap.push({
 			exec: 'suicide',
 			description: 'Suicide',
-			params: [['Percent of HP Loss', 'number']],
+			params: [['Percent of HP Loss', 'number', 50]],
 		});
 
 		this._skillMap.push({
 			exec: 'createOrbs',
 			description: 'Creates a number of Orbs on the board',
 			params: [
-				['Number of Each Color Spawned', 'number'],
-				['Create These Attributes', 'attributes'],
-				['Do not Create over These Attributes', 'attributes'],
+				['Number of Each Color Spawned', 'number', 3],
+				['Create These Attributes', 'attributes', {}],
+				['Do not Create over These Attributes', 'attributes', {}],
 			],
 		});
 
@@ -869,8 +1130,8 @@ export class ActiveSkillService {
 			exec: 'shield',
 			description: 'Shield',
 			params: [
-				['Percent', 'number'],
-				['Number of Turns', 'number'],
+				['Percent', 'number', 50],
+				['Number of Turns', 'number', 1],
 			],
 		});
 
@@ -878,9 +1139,9 @@ export class ActiveSkillService {
 			exec: 'createSpinners',
 			description: 'Create a number of spinners in random places on the board for a number of turns',
 			params: [
-				['Speed In Seconds', 'number'],
-				['Number Of Spinners', 'number'],
-				['Number Of Turns', 'number'],
+				['Speed In Seconds', 'number', 1],
+				['Number Of Spinners', 'number', 1],
+				['Number Of Turns', 'number', 1],
 			],
 		});
 
@@ -893,27 +1154,27 @@ export class ActiveSkillService {
 		this._skillMap.push({
 			exec: 'noSkyfall',
 			description: 'No skyfall for a number of turns',
-			params: [['Number Of Turns', 'number']],
+			params: [['Number Of Turns', 'number', 1]],
 		});
 
 		this._skillMap.push({
 			exec: 'changeEnemyAttribute',
 			description: "Change enemies's attributes",
-			params: [['Attribute', 'attribute']],
+			params: [['Attribute', 'attribute', 'fire']],
 		});
 
 		this._skillMap.push({
 			exec: 'poisonEnemies',
 			description: 'Poison all enemies',
-			params: [['Multiplier', 'number']],
+			params: [['Multiplier', 'number', 100]],
 		});
 
 		this._skillMap.push({
 			exec: 'enhanceSkyfallOrbs',
 			description: 'Enhanced skyfall Orbs for a number of turns',
 			params: [
-				['Percent', 'number'],
-				['Number Of Turns', 'number'],
+				['Percent', 'number', 100],
+				['Number Of Turns', 'number', 1],
 			],
 		});
 
@@ -921,8 +1182,8 @@ export class ActiveSkillService {
 			exec: 'lockOrbs',
 			description: 'Lock specific Orbs',
 			params: [
-				['Attributes', 'attributes'],
-				['Number Of Orbs', 'number'],
+				['Attributes', 'attributes', {}],
+				['Number Of Orbs', 'number', 42],
 			],
 		});
 
@@ -936,10 +1197,10 @@ export class ActiveSkillService {
 			exec: 'convertOrbs',
 			description: 'Convert 1/2 attributes to different 1/2 attributes',
 			params: [
-				['From Attribute 1', 'attribute'],
-				['To Attribute 1', 'attribute'],
-				['From Attribute 2', 'attribute'],
-				['To Attribute 2', 'attribute'],
+				['From Attribute 1', 'attribute', 'fire'],
+				['To Attribute 1', 'attribute', 'water'],
+				['From Attribute 2', 'attribute', 'light'],
+				['To Attribute 2', 'attribute', 'dark'],
 			],
 		});
 
@@ -947,8 +1208,8 @@ export class ActiveSkillService {
 			exec: 'healOverTime',
 			description: 'Heal over time',
 			params: [
-				['Percentage', 'number'],
-				['Number Of Turns', 'number'],
+				['Percentage', 'number', 50],
+				['Number Of Turns', 'number', 2],
 			],
 		});
 
@@ -956,23 +1217,23 @@ export class ActiveSkillService {
 			exec: 'changeSelfAttribute',
 			description: 'Change own attribute',
 			params: [
-				['Attribute', 'attribute'],
-				['Number Of Turns', 'number'],
+				['Attribute', 'attribute', 'dark'],
+				['Number Of Turns', 'number', 3],
 			],
 		});
 
 		this._skillMap.push({
 			exec: 'boardChange',
 			description: 'Change the board into selected attributes',
-			params: [['Attributes', 'attributes']],
+			params: [['Attributes', 'attributes', {}]],
 		});
 
 		this._skillMap.push({
 			exec: 'createOrbsAtFixedPosition',
 			description: 'Create Orbs at fixed position',
 			params: [
-				['Attribute', 'attribute'],
-				['Board Position', 'boardPosition'],
+				['Attribute', 'attribute', 'dark'],
+				['Board Position', 'boardPosition', {}],
 			],
 		});
 
@@ -980,14 +1241,14 @@ export class ActiveSkillService {
 			exec: 'createOrbsAsColumn',
 			description: 'Create Orbs in a column formation',
 			params: [
-				['Attribute #1', 'attribute'],
-				['Column Position #1', 'columnPosition'],
-				['Attribute #2', 'attribute'],
-				['Column Position #2', 'columnPosition'],
-				['Attribute #3', 'attribute'],
-				['Column Position #3', 'columnPosition'],
-				['Attribute #4', 'attribute'],
-				['Column Position #4', 'columnPosition'],
+				['Attribute #1', 'attribute', 'fire'],
+				['Column Position #1', 'columnPosition', {}],
+				['Attribute #2', 'attribute', 'water'],
+				['Column Position #2', 'columnPosition', {}],
+				['Attribute #3', 'attribute', 'light'],
+				['Column Position #3', 'columnPosition', {}],
+				['Attribute #4', 'attribute', 'dark'],
+				['Column Position #4', 'columnPosition', {}],
 			],
 		});
 
@@ -995,14 +1256,14 @@ export class ActiveSkillService {
 			exec: 'createOrbsAsRow',
 			description: 'Create Orbs in a row formation',
 			params: [
-				['Attribute #1', 'attribute'],
-				['Row Position #1', 'rowPosition'],
-				['Attribute #2', 'attribute'],
-				['Row Position #2', 'rowPosition'],
-				['Attribute #3', 'attribute'],
-				['Row Position #3', 'rowPosition'],
-				['Attribute #4', 'attribute'],
-				['Row Position #4', 'rowPosition'],
+				['Attribute #1', 'attribute', 'fire'],
+				['Row Position #1', 'rowPosition', {}],
+				['Attribute #2', 'attribute', 'water'],
+				['Row Position #2', 'rowPosition', {}],
+				['Attribute #3', 'attribute', 'light'],
+				['Row Position #3', 'rowPosition', {}],
+				['Attribute #4', 'attribute', 'dark'],
+				['Row Position #4', 'rowPosition', {}],
 			],
 		});
 
@@ -1010,16 +1271,153 @@ export class ActiveSkillService {
 			exec: 'counterAttack',
 			description: 'Counter attack x amount of damage received for a number of turns',
 			params: [
-				['Counter Attack Damage Attribute', 'attribute'],
-				['Counter Attack Multiplier', 'number'],
-				['Number of Turns', 'number'],
+				['Counter Attack Damage Attribute', 'attribute', 'dark'],
+				['Counter Attack Multiplier', 'number', 100],
+				['Number of Turns', 'number', 4],
 			],
+		});
+
+		this._skillMap.push({
+			exec: 'immediateTrueDamageToOneEnemy',
+			description: 'Inflict immediate true damage to 1 enemy',
+			params: [['Amount of Damage', 'number', 1000000]],
 		});
 
 		this._skillMap.push({
 			exec: 'immediateTrueDamageToAllEnemies',
 			description: 'Inflict immediate true damage to all enemies',
-			params: [['Amount of Damage', 'number']],
+			params: [['Amount of Damage', 'number', 1000000]],
+		});
+
+		this._skillMap.push({
+			exec: 'selfSkillBind',
+			description: 'Unable to use active skills for a number of turns',
+			params: [['Number of Turns', 'number', 2]],
+		});
+
+		this._skillMap.push({
+			exec: 'lockSkyfall',
+			description: 'Lock skyfall Orbs of selected attributes',
+			params: [
+				['Attributes', 'attributes', {}],
+				['Number of Turns', 'number', 1],
+			],
+		});
+
+		this._skillMap.push({
+			exec: 'healImmediately',
+			description: 'Heal immediately',
+			params: [['Amount of HP healed', 'number', 50000]],
+		});
+
+		this._skillMap.push({
+			exec: 'massAttack',
+			description: 'Mass attack for a number of turns',
+			params: [['Number of Turns', 'number', 3]],
+		});
+
+		this._skillMap.push({
+			exec: 'voidEnemiesDefense',
+			description: "Reduce enemies' defense for a number of turns",
+			params: [
+				['Number of Turns', 'number', 2],
+				['Perfect of Defense Break (%)', 'number', 100],
+			],
+		});
+
+		this._skillMap.push({
+			exec: 'doubleOrbChanger',
+			description: 'Change Orbs - two attributes into two attributes',
+			params: [
+				['From Attribute #1', 'attribute', 'fire'],
+				['To Attribute #1', 'attribute', 'water'],
+				['From Attribute #2', 'attribute', 'light'],
+				['To Attribute #2', 'attribute', 'dark'],
+			],
+		});
+
+		this._skillMap.push({
+			exec: 'singleOrbChanger',
+			description: 'Change Orbs - 1 attribute into 1 attribute',
+			params: [
+				['From Attribute', 'attribute', 'light'],
+				['To Attribute', 'attribute', 'dark'],
+			],
+		});
+
+		this._skillMap.push({
+			exec: 'switchPlacesWithLeader',
+			description: 'Switch places with leader',
+			params: [],
+		});
+
+		this._skillMap.push({
+			exec: 'increaseAttackPerAwakeningWithOneAwakeningOnly',
+			description: 'Increase ATK based on the amount of 1 awakening on the team for a number of turns',
+			params: [
+				['Awakening', 'awakening', 61],
+				['Number of Turns', 'number', 1],
+				['Percentage Increment per Awakening', 'number', 50],
+			],
+		});
+
+		this._skillMap.push({
+			exec: 'increaseAttackPerAwakening',
+			description:
+				'Increase ATK based on the amount of selected 1 - 3 awakening on the team for a number of turns',
+			params: [
+				['Awakening #1', 'awakening', 61],
+				['Awakening #2 (choose ? for none)', 'awakening', 0],
+				['Awakening #3 (choose ? for none)', 'awakening', 0],
+				['Number of Turns', 'number', 1],
+				['Percentage Increment per Awakening', 'number', 50],
+			],
+		});
+
+		this._skillMap.push({
+			exec: 'reduceDamagePerAwakening',
+			description:
+				'Reduces incoming damage based on the amount of selected 1-3 awakenings on the team for a number of turns',
+			params: [
+				['Awakening #1', 'awakening', 61],
+				['Awakening #2 (choose ? for none)', 'awakening', 0],
+				['Awakening #3 (choose ? for none)', 'awakening', 0],
+				['Number of Turns', 'number', 1],
+				['Shield %', 'number', 5],
+			],
+		});
+
+		this._skillMap.push({
+			exec: 'immediateHealPerAwakening',
+			description:
+				'Heal immediately xRCV based on the amount of selected 1-3 awakenings on the team for a number of turns',
+			params: [
+				['Awakening #1', 'awakening', 61],
+				['Awakening #2 (choose ? for none)', 'awakening', 0],
+				['Awakening #3 (choose ? for none)', 'awakening', 0],
+				['RCV Multiplier for Healing', 'number', 10],
+			],
+		});
+
+		this._skillMap.push({
+			exec: 'increaseAttackForOneType',
+			description: 'Increase ATK for 1 selected monster type for a number of turns',
+			params: [
+				['Type', 'type', 7],
+				['Number of Turns', 'number', 1],
+				['ATK Multiplier', 'number', 2],
+			],
+		});
+
+		this._skillMap.push({
+			exec: 'increaseAttackForTwoTypes',
+			description: 'Increase ATK for 2 selected monster types for a number of turns',
+			params: [
+				['Type #1', 'type', 7],
+				['Type #2', 'typeWithNone', -1],
+				['Number of Turns', 'number', 1],
+				['ATK Multiplier', 'number', 2],
+			],
 		});
 
 		return this._skillMap;

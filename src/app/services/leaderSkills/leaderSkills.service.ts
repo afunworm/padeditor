@@ -149,6 +149,12 @@ export class LeaderSkillService {
 		return 15607;
 	}
 
+	taikoDrum() {
+		this.resetNameAndDescription();
+		this.skill.push(294);
+		return 294;
+	}
+
 	extendTime(numberOfSeconds: number) {
 		let skillIndex = this.skillData.skill.length;
 		this.skillData.skill[skillIndex] = [this.skillName, this.skillDescription, 15, 0, 0, '', numberOfSeconds * 100];
@@ -409,7 +415,7 @@ export class LeaderSkillService {
 		return skillIndex;
 	}
 
-	bonusDamageForBlobMatch(attribute: Attribute, minMatchRequired: number, bonusDamage: number) {
+	bonusDamageForBlobMatch(attributes: Attributes, minMatchRequired: number, bonusDamage: number) {
 		let skillIndex = this.skillData.skill.length;
 		this.skillData.skill[skillIndex] = [
 			this.skillName,
@@ -418,7 +424,7 @@ export class LeaderSkillService {
 			0,
 			0,
 			'',
-			this.convertAttributeArrayToBinary(attribute),
+			this.convertAttributeArrayToBinary(attributes),
 			minMatchRequired,
 			bonusDamage,
 		];
@@ -709,7 +715,7 @@ export class LeaderSkillService {
 			0,
 			'',
 			minComboCount,
-			minATKMultiplier,
+			minATKMultiplier * 100,
 			attackStep * 100,
 			maxComboCount,
 		];
@@ -787,7 +793,7 @@ export class LeaderSkillService {
 		return skillIndex;
 	}
 
-	boostATKForComboPlusShield(comboRequired: number, ATKMultiplier: number, shield: number = 0) {
+	boostATKForComboPlusShield(comboRequired: number, ATKMultiplier: number = 1, shield: number = 0) {
 		let skillIndex = this.skillData.skill.length;
 		this.skillData.skill[skillIndex] = [
 			this.skillName,
@@ -806,7 +812,7 @@ export class LeaderSkillService {
 	}
 
 	boostATKForBlobMatchPlusShield(
-		attribute: Attribute,
+		attributes: Attributes,
 		minMatchRequired: number,
 		ATKMultiplier: number,
 		shield: number = 0
@@ -819,7 +825,7 @@ export class LeaderSkillService {
 			0,
 			0,
 			'',
-			this.convertAttributeArrayToBinary(attribute),
+			this.convertAttributeArrayToBinary(attributes),
 			minMatchRequired,
 			ATKMultiplier * 100,
 			shield,
@@ -913,6 +919,118 @@ export class LeaderSkillService {
 		return skillIndex;
 	}
 
+	bonusComboForAttributeCross(attributes: Attributes, comboCount: number) {
+		let skillIndex = this.skillData.skill.length;
+		this.skillData.skill[skillIndex] = [
+			this.skillName,
+			this.skillDescription,
+			210,
+			0,
+			0,
+			'',
+			this.convertAttributeArrayToBinary(attributes),
+			0,
+			comboCount,
+		];
+		this.resetNameAndDescription();
+		this.skill.push(skillIndex);
+
+		return skillIndex;
+	}
+
+	boostAttackAndShieldForColorCombosMatch(
+		attribute1: Attribute,
+		attribute2: Attribute,
+		attribute3: Attribute,
+		attribute4: Attribute,
+		minMatchRequired: number,
+		ATKMultiplier: number = 1,
+		shield: number = 0
+	) {
+		let skillIndex = this.skillData.skill.length;
+		this.skillData.skill[skillIndex] = [
+			this.skillName,
+			this.skillDescription,
+			171,
+			0,
+			0,
+			'',
+			this.convertAttributeArrayToBinary(attribute1),
+			this.convertAttributeArrayToBinary(attribute2),
+			this.convertAttributeArrayToBinary(attribute3),
+			this.convertAttributeArrayToBinary(attribute4),
+			minMatchRequired,
+			ATKMultiplier * 100,
+			shield,
+		];
+		this.resetNameAndDescription();
+		this.skill.push(skillIndex);
+		return skillIndex;
+	}
+
+	boostATKAndRCVAndShieldWithLShape(
+		attributes: Attributes,
+		ATKMultiplier: number,
+		RCVMultiplier: number = 1,
+		shield: number = 0
+	) {
+		let skillIndex = this.skillData.skill.length;
+		this.skillData.skill[skillIndex] = [
+			this.skillName,
+			this.skillDescription,
+			193,
+			0,
+			0,
+			'',
+			this.convertAttributeArrayToBinary(attributes),
+			ATKMultiplier * 100,
+			RCVMultiplier * 100,
+			shield,
+		];
+		this.resetNameAndDescription();
+		this.skill.push(skillIndex);
+		return skillIndex;
+	}
+
+	boostStatsForAttributesAndTypesPlusFixedOrbMoveTime(
+		time: number,
+		boostingAttributes: Attributes,
+		boostingTypes: Types,
+		HPMultiplier: number = 1,
+		ATKMultiplier: number = 1,
+		RCVMultiplier: number = 1
+	) {
+		let skillIndex = this.skillData.skill.length;
+
+		this.skillData.skill[skillIndex] = [
+			this.skillName,
+			this.skillDescription,
+			178,
+			0,
+			0,
+			'',
+			time,
+			this.convertAttributeArrayToBinary(boostingAttributes),
+			this.convertTypeArrayToBinary(boostingTypes),
+			HPMultiplier * 100,
+			ATKMultiplier * 100,
+			RCVMultiplier * 100,
+		];
+
+		this.resetNameAndDescription();
+		this.skill.push(skillIndex);
+		return skillIndex;
+	}
+
+	healWhenMatchingOrbs(RCVMultiplier: number) {
+		let skillIndex = this.skillData.skill.length;
+		this.skillData.skill[skillIndex] = [this.skillName, this.skillDescription, 13, 0, 0, '', RCVMultiplier * 100];
+		this.resetNameAndDescription();
+		this.skill.push(skillIndex);
+
+		return skillIndex;
+	}
+
 	getSkillMap() {
 		this._skillMap.push({
 			exec: 'voidPoison',
@@ -921,46 +1039,52 @@ export class LeaderSkillService {
 		});
 
 		this._skillMap.push({
+			exec: 'taikoDrum',
+			description: 'Taiko drums orb sound',
+			params: [],
+		});
+
+		this._skillMap.push({
 			exec: 'extendTime',
 			description: 'Extend Orb move time',
-			params: [['Number of Seconds', 'number']],
+			params: [['Number of Seconds', 'number', 5]],
 		});
 
 		this._skillMap.push({
 			exec: 'boostStatsForAttributesAndTypesPlusShield',
-			description: 'Matching attributes boosts stats and shields',
+			description: 'Boost stats for attributes and types plus shield',
 			params: [
-				['Attributes', 'attributes'],
-				['Types', 'types'],
-				['HP Multiplier', 'number'],
-				['ATK Multiplier', 'number'],
-				['RCV Multiplier', 'number'],
-				['Gain Damage Reduction Against Attribute', 'attributes'],
-				['shield', 'number'],
+				['Attributes', 'attributes', {}],
+				['Types', 'types', {}],
+				['HP Multiplier', 'number', 1.5],
+				['ATK Multiplier', 'number', 1.5],
+				['RCV Multiplier', 'number', 1.5],
+				['Gain Damage Reduction Against Attribute', 'attributes', {}],
+				['shield', 'number', 0],
 			],
 		});
 
 		this._skillMap.push({
 			exec: 'boostStatsForAttributesAndTypesPlusTimeExtend',
-			description: 'Boost stats and extend time to move orbs for attributes & types',
+			description: 'Boost stats and extend time to move orbs for attributes and types',
 			params: [
-				['Attributes', 'attributes'],
-				['Types', 'types'],
-				['HP Multiplier', 'number'],
-				['ATK Multiplier', 'number'],
-				['RCV Multiplier', 'number'],
-				['Time Extend (Second)', 'number'],
+				['Attributes', 'attributes', {}],
+				['Types', 'types', {}],
+				['HP Multiplier', 'number', 1.5],
+				['ATK Multiplier', 'number', 1.5],
+				['RCV Multiplier', 'number', 1.5],
+				['Time Extend (Second)', 'number', 5],
 			],
 		});
 
 		this._skillMap.push({
 			exec: 'boostATKForAttributesMatchPlusShield',
-			description: 'Matching attributes boosts ATK and shields',
+			description: 'Boost ATK and shields for matching attributes',
 			params: [
-				['Attributes Required', 'attributes'],
-				['Number of Attributes Required', 'number'],
-				['Attack Multiplier', 'number'],
-				['Shield', 'number'],
+				['Attributes Required', 'attributes', {}],
+				['Number of Attributes Required', 'number', 2],
+				['Attack Multiplier', 'number', 2],
+				['Shield', 'number', 25],
 			],
 		});
 
@@ -968,10 +1092,10 @@ export class LeaderSkillService {
 			exec: 'boostStatsForSkillUsage',
 			description: 'Boost ATK and RCV on skill usage',
 			params: [
-				['Attributes', 'attributes'],
-				['Types', 'types'],
-				['Attack Multiplier', 'number'],
-				['RCVMultiplier', 'number'],
+				['Attributes', 'attributes', {}],
+				['Types', 'types', {}],
+				['Attack Multiplier', 'number', 2],
+				['RCVMultiplier', 'number', 2],
 			],
 		});
 
@@ -979,13 +1103,13 @@ export class LeaderSkillService {
 			exec: 'boostStatsPlusNoSkyfallPlusShield',
 			description: 'Boost stats and give shield but no skyfall',
 			params: [
-				['Boosted Attributes', 'attributes'],
-				['Boosted Types', 'types'],
-				['HP Multiplier', 'number'],
-				['Attack Multiplier', 'number'],
-				['RCV Multiplier', 'number'],
-				['Attributes Required For Shield', 'attributes'],
-				['Shield', 'number'],
+				['Boosted Attributes', 'attributes', {}],
+				['Boosted Types', 'types', {}],
+				['HP Multiplier', 'number', 1.5],
+				['Attack Multiplier', 'number', 1.5],
+				['RCV Multiplier', 'number', 1.5],
+				['Attributes Required For Shield', 'attributes', {}],
+				['Shield', 'number', 25],
 			],
 		});
 
@@ -999,10 +1123,10 @@ export class LeaderSkillService {
 			exec: 'bonusComboForBlobMatch',
 			description: 'Bonus combo for matching connected orbs (blob)',
 			params: [
-				['Attributes', 'attributes'],
-				['Minimum Connected Orbs Required', 'number'],
-				['Attack Multiplier', 'number'],
-				['Bonus Combo', 'number'],
+				['Attributes', 'attributes', {}],
+				['Minimum Connected Orbs Required', 'number', 4],
+				['Attack Multiplier', 'number', 2],
+				['Bonus Combo', 'number', 1],
 			],
 		});
 
@@ -1010,10 +1134,10 @@ export class LeaderSkillService {
 			exec: 'bonusComboPlusBoostAttackForAttributesMatch',
 			description: 'Bonus combo and boost ATK for matching attributes',
 			params: [
-				['Attributes', 'attributes'],
-				['Minimum Colors Required', 'number'],
-				['Attack Multiplier', 'number'],
-				['Bonus Combo', 'number'],
+				['Attributes', 'attributes', {}],
+				['Minimum Colors Required', 'number', 2],
+				['Attack Multiplier', 'number', 2],
+				['Bonus Combo', 'number', 1],
 			],
 		});
 
@@ -1021,11 +1145,11 @@ export class LeaderSkillService {
 			exec: 'bonusComboForColorCombosMatch',
 			description: 'Bonus combo for matching color combos (combos of the same color)',
 			params: [
-				['Attribute #1', 'attribute'],
-				['Attribute #2', 'attributeWithNone'],
-				['Attribute #3', 'attributeWithNone'],
-				['Minimum Combos of the Same Color required', 'number'],
-				['Bonus Combo', 'number'],
+				['Attribute #1', 'attribute', 'fire'],
+				['Attribute #2', 'attributeWithNone', 'fire'],
+				['Attribute #3', 'attributeWithNone', 'none'],
+				['Minimum Combos of the Same Color required', 'number', 2],
+				['Bonus Combo', 'number', 1],
 			],
 		});
 
@@ -1033,9 +1157,9 @@ export class LeaderSkillService {
 			exec: 'bonusDamageForBlobMatch',
 			description: 'Bonus damage for matching connected orbs (blob)',
 			params: [
-				['Attribute', 'attribute'],
-				['Minimum Connected Orbs Required', 'number'],
-				['Bonus Damage', 'number'],
+				['Attributes', 'attributes', {}],
+				['Minimum Connected Orbs Required', 'number', 4],
+				['Bonus Damage', 'number', 1],
 			],
 		});
 
@@ -1043,9 +1167,9 @@ export class LeaderSkillService {
 			exec: 'bonusDamageForAttributesMatch',
 			description: 'Bonus damage for matching attributes',
 			params: [
-				['Attributes', 'attributes'],
-				['Minimum Colors Required', 'number'],
-				['Bonus Damage', 'number'],
+				['Attributes', 'attributes', {}],
+				['Minimum Colors Required', 'number', 2],
+				['Bonus Damage', 'number', 1000000],
 			],
 		});
 
@@ -1053,12 +1177,12 @@ export class LeaderSkillService {
 			exec: 'bonusDamageForColorCombosMatch',
 			description: 'Bonus damage for matching color combos (combos of the same color)',
 			params: [
-				['Attribute #1', 'attribute'],
-				['Attribute #2', 'attributeWithNone'],
-				['Attribute #3', 'attributeWithNone'],
-				['Attribute #4', 'attributeWithNone'],
-				['Minimum Combos of the Same Color required', 'number'],
-				['Bonus Damage', 'number'],
+				['Attribute #1', 'attribute', 'fire'],
+				['Attribute #2', 'attributeWithNone', 'fire'],
+				['Attribute #3', 'attributeWithNone', 'none'],
+				['Attribute #4', 'attributeWithNone', 'none'],
+				['Minimum Combos of the Same Color required', 'number', 2],
+				['Bonus Damage', 'number', 1000000],
 			],
 		});
 
@@ -1066,9 +1190,9 @@ export class LeaderSkillService {
 			exec: 'shieldForLowHPWithChance',
 			description: 'Damage Reduction (Shield) when HP is low',
 			params: [
-				['HP Threshold Percent', 'number'],
-				['Shield Percent', 'number'],
-				['Chance Percent', 'number'],
+				['HP Threshold Percent', 'number', 50],
+				['Shield Percent', 'number', 50],
+				['Chance Percent', 'number', 100],
 			],
 		});
 
@@ -1076,9 +1200,9 @@ export class LeaderSkillService {
 			exec: 'shieldForHighHPWithChance',
 			description: 'Damage Reduction (Shield) when HP is high',
 			params: [
-				['HP Threshold Percent', 'number'],
-				['Shield Percent', 'number'],
-				['Chance Percent', 'number'],
+				['HP Threshold Percent', 'number', 50],
+				['Shield Percent', 'number', 50],
+				['Chance Percent', 'number', 100],
 			],
 		});
 
@@ -1086,13 +1210,13 @@ export class LeaderSkillService {
 			exec: 'boostStatsForLowHPWithShield',
 			description: 'Boost stats and shield when HP is low',
 			params: [
-				['HP Threshold Percent', 'number'],
-				['Attributes', 'attributes'],
-				['Types', 'types'],
-				['ATK Multiplier', 'number'],
-				['RCV Multiplier', 'number'],
-				['Gain Damage Reduction Against Attributes', 'attributes'],
-				['Shield Percent', 'number'],
+				['HP Threshold Percent', 'number', 50],
+				['Attributes', 'attributes', {}],
+				['Types', 'types', {}],
+				['ATK Multiplier', 'number', 2],
+				['RCV Multiplier', 'number', 2],
+				['Gain Damage Reduction Against Attributes', 'attributes', {}],
+				['Shield Percent', 'number', 50],
 			],
 		});
 
@@ -1100,13 +1224,13 @@ export class LeaderSkillService {
 			exec: 'boostStatsForHighHPWithShield',
 			description: 'Boost stats and shield when HP is high',
 			params: [
-				['HP Threshold Percent', 'number'],
-				['Attributes', 'attributes'],
-				['Types', 'types'],
-				['ATK Multiplier', 'number'],
-				['RCV Multiplier', 'number'],
-				['Gain Damage Reduction Against Attributes', 'attributes'],
-				['Shield Percent', 'number'],
+				['HP Threshold Percent', 'number', 50],
+				['Attributes', 'attributes', {}],
+				['Types', 'types', {}],
+				['ATK Multiplier', 'number', 2],
+				['RCV Multiplier', 'number', 2],
+				['Gain Damage Reduction Against Attributes', 'attributes', {}],
+				['Shield Percent', 'number', 50],
 			],
 		});
 
@@ -1120,11 +1244,11 @@ export class LeaderSkillService {
 			exec: 'boostATKForBlobMatchWithScaling',
 			description: 'Boost ATK for matching connected orbs (blob) with scaling',
 			params: [
-				['Attributes', 'attributes'],
-				['Minimum Number of Connected Orbs', 'number'],
-				['Minimum ATK Multiplier', 'number'],
-				['ATK Multiplier Increment for Every Extra Connected Orb', 'number'],
-				['Maximum Number of Connected Orbs for Multiplier', 'number'],
+				['Attributes', 'attributes', {}],
+				['Minimum Number of Connected Orbs', 'number', 4],
+				['Minimum ATK Multiplier', 'number', 4],
+				['ATK Multiplier Increment for Every Extra Connected Orb', 'number', 1],
+				['Maximum Number of Connected Orbs for Multiplier', 'number', 10],
 			],
 		});
 
@@ -1132,11 +1256,11 @@ export class LeaderSkillService {
 			exec: 'boostATKForAttributesMatchWithScaling',
 			description: 'Boost ATK for matching attributes with scaling',
 			params: [
-				['Attributes', 'attributes'],
-				['Minimum Number of Attributes Required', 'number'],
-				['Minimum ATK Multiplier', 'number'],
-				['ATK Multiplier Increment for Every Extra Connected Orb', 'number'],
-				['Maximum Number of Attributes for Multiplier', 'number'],
+				['Attributes', 'attributes', {}],
+				['Minimum Number of Attributes Required', 'number', 2],
+				['Minimum ATK Multiplier', 'number', 4],
+				['ATK Multiplier Increment for Every Extra Connected Orb', 'number', 2],
+				['Maximum Number of Attributes for Multiplier', 'number', 5],
 			],
 		});
 
@@ -1144,25 +1268,25 @@ export class LeaderSkillService {
 			exec: 'boostATKForColorComboMatchWithScaling',
 			description: 'Boost ATK for matching color combos (combos of the same color) with scaling',
 			params: [
-				['Attribute #1', 'attribute'],
-				['Attribute #2', 'attributeWithNone'],
-				['Attribute #3', 'attributeWithNone'],
-				['Attribute #4', 'attributeWithNone'],
-				['Attribute #5', 'attributeWithNone'],
-				['Minimum Combos of the Same Color required', 'number'],
-				['Minimum ATK Multiplier', 'number'],
-				['ATK Multiplier Increment for Every Extra Combo', 'number'],
+				['Attribute #1', 'attribute', 'fire'],
+				['Attribute #2', 'attributeWithNone', 'fire'],
+				['Attribute #3', 'attributeWithNone', 'none'],
+				['Attribute #4', 'attributeWithNone', 'none'],
+				['Attribute #5', 'attributeWithNone', 'none'],
+				['Minimum Combos of the Same Color required', 'number', 2],
+				['Minimum ATK Multiplier', 'number', 4],
+				['ATK Multiplier Increment for Every Extra Combo', 'number', 2],
 			],
 		});
 
 		this._skillMap.push({
 			exec: 'boostATKForComboMatchWithScaling',
-			description: 'Boost ATK for matching combos with scaling',
+			description: 'Boost ATK for matching combos with scaling (LEAVE THIS SKILL PART AT THE END)',
 			params: [
-				['Minimum Combos Required', 'number'],
-				['Minimum Attack Multiplier', 'number'],
-				['ATK Multiplier Increment for Every Extra Combo', 'number'],
-				['Maximum Number of Combos for Multiplier', 'number'],
+				['Minimum Combos Required', 'number', 8],
+				['Minimum Attack Multiplier', 'number', 8],
+				['ATK Multiplier Increment for Every Extra Combo', 'number', 1],
+				['Maximum Number of Combos for Multiplier', 'number', 20],
 			],
 		});
 
@@ -1170,12 +1294,12 @@ export class LeaderSkillService {
 			exec: 'boostStatsPlusCannotMatchLessThan',
 			description: 'Cannot match less than X number of Orbs but boost stats',
 			params: [
-				['Minimum Number of Orbs to Be Erasable', 'number'],
-				['Attributes for Stat Boost', 'attributes'],
-				['Types for Stat Boost', 'types'],
-				['HP Multiplier', 'number'],
-				['ATK Multiplier', 'number'],
-				['RCV Multiplier', 'number'],
+				['Minimum Number of Orbs to Be Erasable', 'number', 4],
+				['Attributes for Stat Boost', 'attributes', {}],
+				['Types for Stat Boost', 'types', {}],
+				['HP Multiplier', 'number', 2],
+				['ATK Multiplier', 'number', 2],
+				['RCV Multiplier', 'number', 2],
 			],
 		});
 
@@ -1183,8 +1307,8 @@ export class LeaderSkillService {
 			exec: 'boostATKWithExactCombos',
 			description: 'Boost ATK when reaching the exact number of combos',
 			params: [
-				['Number of Combos', 'number'],
-				['ATK Multiplier', 'number'],
+				['Number of Combos', 'number', 6],
+				['ATK Multiplier', 'number', 66],
 			],
 		});
 
@@ -1192,41 +1316,41 @@ export class LeaderSkillService {
 			exec: 'boostATKPlusUnbindPlusShieldWhenRecoverHP',
 			description: 'Boost ATK, shield, and awoken unbind when recovers HP with heart Orbs',
 			params: [
-				['HP Recovery Amount Required', 'number'],
-				['ATK Multiplier', 'number'],
-				['Shield Percent', 'number'],
-				['Awoken Unbind Turns', 'number'],
+				['HP Recovery Amount Required', 'number', 50000],
+				['ATK Multiplier', 'number', 2],
+				['Shield Percent', 'number', 25],
+				['Awoken Unbind Turns', 'number', 5],
 			],
 		});
 
 		this._skillMap.push({
 			exec: 'boostATKForComboPlusShield',
-			description: 'Boost ATK & shield when reaching a number of combos',
+			description: 'Boost ATK and shield when reaching a number of combos',
 			params: [
-				['Number of Combos Required', 'number'],
-				['ATK Multiplier', 'number'],
-				['Shield Percent', 'number'],
+				['Number of Combos Required', 'number', 10],
+				['ATK Multiplier', 'number', 10],
+				['Shield Percent', 'number', 50],
 			],
 		});
 
 		this._skillMap.push({
 			exec: 'boostATKForBlobMatchPlusShield',
-			description: 'Boost ATK & shield when matching connected Orbs (blob)',
+			description: 'Boost ATK and shield when matching connected Orbs (blob)',
 			params: [
-				['Attribute', 'attribute'],
-				['Number of Connected Orbs Required', 'number'],
-				['ATK Multiplier', 'number'],
-				['Shield Percent', 'number'],
+				['Attributes', 'attributes', {}],
+				['Number of Connected Orbs Required', 'number', 4],
+				['ATK Multiplier', 'number', 8],
+				['Shield Percent', 'number', 50],
 			],
 		});
 
 		this._skillMap.push({
 			exec: 'boostStatsForHeartCrossMatchWithShield',
-			description: 'Boost stats & shield when matching heart cross',
+			description: 'Boost stats and shield when matching heart cross',
 			params: [
-				['ATK Multiplier', 'number'],
-				['RCV Multiplier', 'number'],
-				['Shield Percent', 'number'],
+				['ATK Multiplier', 'number', 18],
+				['RCV Multiplier', 'number', 2],
+				['Shield Percent', 'number', 60],
 			],
 		});
 
@@ -1234,35 +1358,88 @@ export class LeaderSkillService {
 			exec: 'boostATKForAttributeCrossMatch',
 			description: 'Boost ATK for each cross of certain attributes (excluding heart)',
 			params: [
-				['Attribute #1', 'attribute'],
-				['ATK Multiplier for Attribute #1', 'number'],
-				['Attribute #2', 'attribute'],
-				['ATK Multiplier for Attribute #2', 'number'],
-				['Attribute #3', 'attribute'],
-				['ATK Multiplier for Attribute #3', 'number'],
+				['Attribute #1', 'attribute', 'fire'],
+				['ATK Multiplier for Attribute #1', 'number', 2.5],
+				['Attribute #2', 'attribute', 'fire'],
+				['ATK Multiplier for Attribute #2', 'number', 2.5],
+				['Attribute #3', 'attribute', 'fire'],
+				['ATK Multiplier for Attribute #3', 'number', 2.5],
 			],
 		});
 
 		this._skillMap.push({
 			exec: 'boostATKFor5O1E',
 			description: 'Boost ATK when matching 5 Orbs including at least 1 Enhanced Orbs',
-			params: [['ATK Multiplier', 'number']],
+			params: [['ATK Multiplier', 'number', 12]],
 		});
 
 		this._skillMap.push({
 			exec: 'resolve',
 			description: 'Survive a single hit when HP is above a certain threshold',
-			params: [['Minimum HP Threshold', 'number']],
+			params: [['Minimum HP Threshold', 'number', 25]],
 		});
 
 		this._skillMap.push({
 			exec: 'counterAttack',
 			description: 'Counter attack x amount of damage received with chance',
 			params: [
-				['Chance for Counter Attack', 'number'],
-				['Counter Attack Multiplier', 'number'],
-				['Counter Attack Damage Attribute', 'attribute'],
+				['Chance for Counter Attack', 'number', 100],
+				['Counter Attack Multiplier', 'number', 100],
+				['Counter Attack Damage Attribute', 'attribute', 'dark'],
 			],
+		});
+
+		this._skillMap.push({
+			exec: 'bonusComboForAttributeCross',
+			description: 'Bonus combos for each cross of selected attributes',
+			params: [
+				['Attributes', 'attributes', {}],
+				['Number of Combos', 'number', 1],
+			],
+		});
+
+		this._skillMap.push({
+			exec: 'boostAttackAndShieldForColorCombosMatch',
+			description: 'Boost ATK and shield for matching color combos (combos of the same color)',
+			params: [
+				['Attribute #1', 'attribute', 'fire'],
+				['Attribute #2', 'attributeWithNone', 'fire'],
+				['Attribute #3', 'attributeWithNone', 'none'],
+				['Attribute #4', 'attributeWithNone', 'none'],
+				['Minimum Combos of the Same Color required', 'number', 2],
+				['ATK Multiplier', 'number', 18],
+				['Shield', 'number', 25],
+			],
+		});
+
+		this._skillMap.push({
+			exec: 'boostATKAndRCVAndShieldWithLShape',
+			description: 'Boost ATK, RCV and shield with an L shape of selected attributes',
+			params: [
+				['Attributes', 'attributes', {}],
+				['ATK Multiplier', 'number', 12],
+				['RCV Multiplier', 'number', 2],
+				['Shield', 'number', 50],
+			],
+		});
+
+		this._skillMap.push({
+			exec: 'boostStatsForAttributesAndTypesPlusFixedOrbMoveTime',
+			description: 'Boost stats for attributes and types with fixed Orb move time',
+			params: [
+				['Time to move Orbs', 'number', 10],
+				['Attributes', 'attributes', {}],
+				['Types', 'types', {}],
+				['HP Multiplier', 'number', 1.5],
+				['ATK Multiplier', 'number', 1.5],
+				['RCV Multiplier', 'number', 1.5],
+			],
+		});
+
+		this._skillMap.push({
+			exec: 'healWhenMatchingOrbs',
+			description: 'Recover HP after matching Orbs',
+			params: [['RCV multiplier (x times the RCV)', 'number', 100]],
 		});
 
 		return this._skillMap;

@@ -40,6 +40,7 @@ export class EditorComponent implements OnInit {
 	availableAwakenings = this._dataService.getAvailableAwakenings();
 	availableAttributes = this._dataService.getAvailableAttributes();
 	availableTypes = this._dataService.getAvailableTypes();
+	availableTypeIds = this._dataService.getAvailableTypeIds();
 	changeQueue: {
 		[id: string]: (
 			| {
@@ -88,6 +89,10 @@ export class EditorComponent implements OnInit {
 	) {}
 
 	ngOnInit() {
+		//Custom flags
+		window['flags'] = {};
+		window['flags'].make_cards_evo_reversible = false;
+
 		//Verify things
 		const auth = firebase.auth();
 		const firestore = firebase.firestore();
@@ -343,7 +348,9 @@ export class EditorComponent implements OnInit {
 				} else if (template[1] === 'attributeWithNone') {
 					currentPart.params[index] = 'none';
 				} else if (template[1] === 'type') {
-					currentPart.params[index] = 'devil';
+					currentPart.params[index] = 0; //Evo mats
+				} else if (template[1] === 'typeWithNone') {
+					currentPart.params[index] = -1; //None
 				} else if (template[1] === 'boolean') {
 					currentPart.params[index] = true;
 				} else if (template[1] === 'number') {
@@ -354,7 +361,12 @@ export class EditorComponent implements OnInit {
 					template[1] === 'rowPosition'
 				) {
 					currentPart.params[index] = {};
+				} else if (template[1] === 'awakening') {
+					currentPart.params[index] = 61; //10c awakenings, cuz I like it
 				}
+
+				//Default value for the the choice
+				if (template[2] !== undefined) currentPart.params[index] = template[2];
 			}
 		);
 	}
@@ -435,6 +447,9 @@ export class EditorComponent implements OnInit {
 				) {
 					currentPart.params[index] = {};
 				}
+
+				//Default value for the the choice
+				if (template[2] !== undefined) currentPart.params[index] = template[2];
 			}
 		);
 	}
@@ -502,10 +517,14 @@ export class EditorComponent implements OnInit {
 	async compileData() {
 		this.isCompiling = true;
 		let output = this._dataService.compileDataChanges(this.changeQueue);
-		output.cardData.card = output.cardData.card.map((card) => {
-			card[4] = 1;
-			return card;
-		});
+
+		if (window['flags']?.make_cards_evo_reversible) {
+			output.cardData.card = output.cardData.card.map((card) => {
+				card[4] = 1;
+				return card;
+			});
+		}
+
 		this.cardDataOutput = JSON.stringify(output.cardData);
 		this.skillDataOutput = JSON.stringify(output.skillData);
 		window['cardData'] = output.cardData['card'];
@@ -595,7 +614,7 @@ export class EditorComponent implements OnInit {
 
 	deleteActiveSkillPart(index) {
 		this._notificationService
-			.confirm('Removing this leader skill part?')
+			.confirm('Removing this active skill part?')
 			.afterClosed()
 			.subscribe((confirm) => {
 				if (!confirm) return;
@@ -679,7 +698,10 @@ export class EditorComponent implements OnInit {
 			.confirm('Save this queue to the Cloud?')
 			.afterClosed()
 			.subscribe(async (confirm) => {
-				if (!confirm) return;
+				if (!confirm) {
+					this.isFirestoring = false;
+					return;
+				}
 
 				const firestore = firebase.firestore();
 
