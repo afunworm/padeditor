@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-const cardData = require('../../../assets/raw/download_card_data_020721.json');
-const skillData = require('../../../assets/raw/download_skill_data_020721.json');
+const cardData = require('../../../assets/raw/download_card_data_041521.json');
+const skillData = require('../../../assets/raw/download_skill_data_041521.json');
 import { CardModifier } from '../cardModifier/cardModifier.service';
 import { Attribute } from '../../interfaces/card.interfaces';
 import { ActiveSkillService } from '../activeSkills/activeSkills.service';
